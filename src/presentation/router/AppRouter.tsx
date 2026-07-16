@@ -14,6 +14,7 @@ const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
 // 🦸‍♂️ Módulo Comercial y Core (Tus pantallas)
 const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
+const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -99,7 +100,7 @@ export default function AppRouter() {
             } />
             <Route path="/sales/customers" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Clientes" />
+                <ClientesPage />
               </ProtectedRoute>
             } />
 
