@@ -15,6 +15,7 @@ const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 // 🦸‍♂️ Módulo Comercial y Core (Tus pantallas)
 const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
 const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
+const PromocionesPage = lazy(() => import('../pages/comercial/PromocionesPage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -101,6 +102,11 @@ export default function AppRouter() {
             <Route path="/sales/customers" element={
               <ProtectedRoute>
                 <ClientesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/promotions" element={
+              <ProtectedRoute>
+                <PromocionesPage />
               </ProtectedRoute>
             } />
 
