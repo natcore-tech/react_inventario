@@ -8,12 +8,12 @@ import PlaceholderPage from '../pages/PlaceholderPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
-// Auth (sin shell) — Estas ya las tienes reales
+// Auth (sin shell)
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
-// El resto de páginas se irán reemplazando por lazy imports reales
-// conforme vayas construyendo los módulos de tu backend.
+// 🦸‍♂️ Módulo Comercial y Core (Tus pantallas)
+const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -45,7 +45,7 @@ export default function AppRouter() {
 
           {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
           <Route element={<AppShell />}>
-            
+
             {/* Dashboard Principal */}
             <Route path="/" element={
               <ProtectedRoute>
@@ -56,9 +56,10 @@ export default function AppRouter() {
             {/* Inventario — Catálogo Base */}
             <Route path="/inventory/products" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Productos" />
+                <ProductosPage /> {/* Aquí inyectamos tu pantalla real */}
               </ProtectedRoute>
             } />
+
             <Route path="/inventory/products/:id" element={
               <ProtectedRoute>
                 <PlaceholderPage title="Inventario — Detalle de Producto" />
@@ -135,7 +136,7 @@ export default function AppRouter() {
                 <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
               </ProtectedRoute>
             } />
-            
+
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
