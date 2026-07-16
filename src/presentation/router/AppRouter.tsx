@@ -16,6 +16,7 @@ const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
 const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
 const PromocionesPage = lazy(() => import('../pages/comercial/PromocionesPage'))
+const MetodosPagoPage = lazy(() => import('../pages/comercial/MetodosPagoPage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -107,6 +108,11 @@ export default function AppRouter() {
             <Route path="/sales/promotions" element={
               <ProtectedRoute>
                 <PromocionesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/payment-methods" element={
+              <ProtectedRoute>
+                <MetodosPagoPage />
               </ProtectedRoute>
             } />
 
