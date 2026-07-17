@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import { ventaUseCase } from '@/infrastructure/factories/venta.factory'
 import type { Venta } from '@/domain/entities/venta.entity'
-import type { CreateVentaDto, UpdateVentaDto } from '@/application/dtos/venta.dto'
+import type { CreateVentaDto } from '@/application/dtos/venta.dto'
 
 interface VentaState {
   ventas: Venta[]
