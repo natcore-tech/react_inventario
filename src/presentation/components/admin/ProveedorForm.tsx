@@ -142,7 +142,7 @@ export function ProveedorForm({ defaultValues, onSubmit, isLoading = false }: Pr
 
       <div className="flex justify-end pt-2">
         <Button type="submit" disabled={isLoading}>
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Loader2 className={`mr-2 h-4 w-4 animate-spin ${isLoading ? '' : 'hidden'}`} />
           {isLoading ? 'Guardando...' : 'Guardar'}
         </Button>
       </div>

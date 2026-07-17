@@ -45,7 +45,6 @@ export function ProveedorDialog({ open, onOpenChange, proveedor }: ProveedorDial
             ? 'No se pudo actualizar el proveedor.'
             : 'No se pudo crear el proveedor.'
       toast.error('Error', { description: message })
-    } finally {
       setIsLoading(false)
     }
   }
