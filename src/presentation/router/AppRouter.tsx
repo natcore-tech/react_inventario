@@ -21,6 +21,7 @@ const MetodosPagoPage = lazy(() => import('../pages/comercial/MetodosPagoPage'))
 const TurnosCajaPage = lazy(() => import('../pages/facturacion/TurnosCajaPage'))
 const HistorialVentasPage = lazy(() => import('../pages/facturacion/HistorialVentasPage'))
 const PosPage = lazy(() => import('../pages/facturacion/PosPage'))
+const MovimientosPage = lazy(() => import('../pages/facturacion/MovimientosPage'))
 
 // El resto de páginas se irán reemplazando por lazy imports reales
 // conforme vayas construyendo los módulos de tu backend.
@@ -159,7 +160,7 @@ export default function AppRouter() {
             {/* Bodega — Logística y Control */}
             <Route path="/warehouse/stock" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Stock Actual" />
+                <MovimientosPage />
               </ProtectedRoute>
             } />
             <Route path="/warehouse/movements" element={
