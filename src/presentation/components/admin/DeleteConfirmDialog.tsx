@@ -1,69 +1,62 @@
-// src/presentation/store/compras.store.ts
+// src/presentation/components/admin/DeleteConfirmDialog.tsx
 
-import { create } from 'zustand'
-import { proveedorUseCase } from '@/infrastructure/factories/proveedor.factory'
-import { ApiException } from '@/domain/exceptions/api.exception'
-import type { Proveedor } from '@/domain/entities/proveedor.entity'
-import type { CreateProveedorDto } from '@/application/dtos/create-proveedor.dto'
-import type { UpdateProveedorDto } from '@/application/dtos/update-proveedor.dto'
 
-interface ComprasState {
-  // ── Slice: Proveedores ──────────────────────────────────────────────────
-  proveedores: Proveedor[]
-  isLoadingProveedores: boolean
-  proveedoresError: string | null
+import { Loader2 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '../ui/dialog'
+import { Button } from '../ui/button'
 
+interface DeleteConfirmDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  description: string
+  onConfirm: () => void | Promise<void>
+  isLoading?: boolean
 }
 
-interface ComprasActions {
-  // ── Slice: Proveedores ──────────────────────────────────────────────────
-  fetchProveedores(): Promise<void>
-  createProveedor(dto: CreateProveedorDto): Promise<void>
-  updateProveedor(id: number, dto: UpdateProveedorDto): Promise<void>
-  deleteProveedor(id: number): Promise<void>
+export function DeleteConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  onConfirm,
+  isLoading = false,
+}: DeleteConfirmDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter className="gap-2 sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isLoading}
+          >
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading ? 'Eliminando...' : 'Eliminar'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
 }
-
-export const useComprasStore = create<ComprasState & ComprasActions>((set, get) => ({
-  proveedores: [],
-  isLoadingProveedores: false,
-  proveedoresError: null,
-
-  async fetchProveedores() {
-    set({ isLoadingProveedores: true, proveedoresError: null })
-    try {
-      const proveedores = await proveedorUseCase.getProveedores()
-      set({ proveedores })
-    } catch {
-      set({ proveedoresError: 'No se pudieron cargar los proveedores.' })
-    } finally {
-      set({ isLoadingProveedores: false })
-    }
-  },
-
-  async createProveedor(dto) {
-    try {
-      const proveedor = await proveedorUseCase.createProveedor(dto)
-      set({ proveedores: [proveedor, ...get().proveedores] })
-    } catch (err) {
-      throw err instanceof ApiException ? err : new Error('No se pudo crear el proveedor.')
-    }
-  },
-
-  async updateProveedor(id, dto) {
-    try {
-      const actualizado = await proveedorUseCase.updateProveedor(id, dto)
-      set({ proveedores: get().proveedores.map((p) => (p.id === id ? actualizado : p)) })
-    } catch (err) {
-      throw err instanceof ApiException ? err : new Error('No se pudo actualizar el proveedor.')
-    }
-  },
-
-  async deleteProveedor(id) {
-    try {
-      await proveedorUseCase.deleteProveedor(id)
-      set({ proveedores: get().proveedores.filter((p) => p.id !== id) })
-    } catch (err) {
-      throw err instanceof ApiException ? err : new Error('No se pudo eliminar el proveedor.')
-    }
-  },
-}))

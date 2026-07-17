@@ -9,7 +9,7 @@ import { parseApiError } from '../http/parse-api-error'
 import type { ProveedorRepository } from '../../domain/ports/proveedor.repository'
 import type { Proveedor } from '../../domain/entities/proveedor.entity'
 
-const BASE_URL = '/api/proveedores/'
+const BASE_URL = '/proveedores/'
 
 // DRF a veces pagina ({ count, next, previous, results }) y a veces no (array plano).
 type ListResponse<T> = T[] | { count: number; next: string | null; previous: string | null; results: T[] }
