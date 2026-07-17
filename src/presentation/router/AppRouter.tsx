@@ -17,6 +17,13 @@ const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
 const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
 const PromocionesPage = lazy(() => import('../pages/comercial/PromocionesPage'))
 const MetodosPagoPage = lazy(() => import('../pages/comercial/MetodosPagoPage'))
+// 🦸‍♂️ Módulo Facturación y POS
+const TurnosCajaPage = lazy(() => import('../pages/facturacion/TurnosCajaPage'))
+const HistorialVentasPage = lazy(() => import('../pages/facturacion/HistorialVentasPage'))
+const PosPage = lazy(() => import('../pages/facturacion/PosPage'))
+
+// El resto de páginas se irán reemplazando por lazy imports reales
+// conforme vayas construyendo los módulos de tu backend.
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -85,9 +92,25 @@ export default function AppRouter() {
                 <PlaceholderPage title="Ventas — Historial" />
               </ProtectedRoute>
             } />
-            <Route path="/sales/new" element={
+            {/* Facturación y POS */}
+            <Route path="/billing/pos" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Nueva Venta / POS" />
+                <PosPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/billing/shifts" element={
+              <ProtectedRoute>
+                <TurnosCajaPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/billing/history" element={
+              <ProtectedRoute>
+                <HistorialVentasPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/customers" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Ventas — Clientes" />
               </ProtectedRoute>
             } />
             <Route path="/sales/quotes" element={
