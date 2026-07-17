@@ -1,0 +1,29 @@
+// src/infrastructure/adapters/axios-stock-bodega.repository.ts
+import { apiClient } from '@/infrastructure/http/axios-client'
+import { parseApiError } from '@/infrastructure/http/parse-api-error'
+import type { StockBodegaRepository } from '@/domain/ports/stock-bodega.repository'
+import type { StockBodega } from '@/domain/entities/stock-bodega.entity'
+
+/** Forma paginada estándar de Django REST Framework. */
+interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
+/**
+ * Implementación concreta del puerto StockBodegaRepository usando Axios.
+ * Consume GET /stocks-bodegas/ (registrado en el router como 'stocks-bodegas').
+ */
+export class AxiosStockBodegaRepository implements StockBodegaRepository {
+  /** GET /stocks-bodegas/ — extrae los registros de .results (respuesta paginada de DRF). */
+  async getStocksBodegas(): Promise<StockBodega[]> {
+    try {
+      const { data } = await apiClient.get<PaginatedResponse<StockBodega>>('/stocks-bodegas/')
+      return data.results
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+}
