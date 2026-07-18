@@ -9,7 +9,7 @@ import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
-// Auth (sin shell) — Estas ya las tienes reales
+// Auth (sin shell)
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
@@ -18,6 +18,16 @@ const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 // OrdenesCompraPage esta en pages/admin/, siguiendo el patron de la guia del profe.
 const ProveedoresPage = lazy(() => import('../pages/inventory/ProveedoresPage'))
 const OrdenesCompraPage = lazy(() => import('../pages/admin/OrdenesCompraPage'))
+// 🦸‍♂️ Módulo Comercial y Core (Tus pantallas)
+const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
+const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
+const PromocionesPage = lazy(() => import('../pages/comercial/PromocionesPage'))
+const MetodosPagoPage = lazy(() => import('../pages/comercial/MetodosPagoPage'))
+// 🦸‍♂️ Módulo Facturación y POS
+const TurnosCajaPage = lazy(() => import('../pages/facturacion/TurnosCajaPage'))
+const HistorialVentasPage = lazy(() => import('../pages/facturacion/HistorialVentasPage'))
+const PosPage = lazy(() => import('../pages/facturacion/PosPage'))
+const MovimientosPage = lazy(() => import('../pages/facturacion/MovimientosPage'))
 
 // El resto de páginas se irán reemplazando por lazy imports reales
 // conforme vayas construyendo los módulos de tu backend.
@@ -63,9 +73,10 @@ export default function AppRouter() {
             {/* Inventario — Catálogo Base */}
             <Route path="/inventory/products" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Productos" />
+                <ProductosPage /> {/* Aquí inyectamos tu pantalla real */}
               </ProtectedRoute>
             } />
+
             <Route path="/inventory/products/:id" element={
               <ProtectedRoute>
                 <PlaceholderPage title="Inventario — Detalle de Producto" />
@@ -88,9 +99,25 @@ export default function AppRouter() {
                 <PlaceholderPage title="Ventas — Historial" />
               </ProtectedRoute>
             } />
-            <Route path="/sales/new" element={
+            {/* Facturación y POS */}
+            <Route path="/billing/pos" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Nueva Venta / POS" />
+                <PosPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/billing/shifts" element={
+              <ProtectedRoute>
+                <TurnosCajaPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/billing/history" element={
+              <ProtectedRoute>
+                <HistorialVentasPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/customers" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Ventas — Clientes" />
               </ProtectedRoute>
             } />
             <Route path="/sales/quotes" element={
@@ -105,7 +132,17 @@ export default function AppRouter() {
             } />
             <Route path="/sales/customers" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Clientes" />
+                <ClientesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/promotions" element={
+              <ProtectedRoute>
+                <PromocionesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/payment-methods" element={
+              <ProtectedRoute>
+                <MetodosPagoPage />
               </ProtectedRoute>
             } />
 
@@ -135,7 +172,7 @@ export default function AppRouter() {
             {/* Bodega — Logística y Control */}
             <Route path="/warehouse/stock" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Stock Actual" />
+                <MovimientosPage />
               </ProtectedRoute>
             } />
             <Route path="/warehouse/movements" element={
