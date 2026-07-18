@@ -12,8 +12,10 @@ import PlaceholderPage from '../pages/PlaceholderPage'
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
-// El resto de páginas se irán reemplazando por lazy imports reales
-// conforme vayas construyendo los módulos de tu backend.
+// Tarea 1 — Entidades base
+const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
+const UnidadesMedidaPage = lazy(() => import('../pages/inventory/UnidadesMedidaPage'))
+const UbicacionesFisicasPage = lazy(() => import('../pages/warehouse/UbicacionesFisicasPage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -45,7 +47,7 @@ export default function AppRouter() {
 
           {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
           <Route element={<AppShell />}>
-            
+
             {/* Dashboard Principal */}
             <Route path="/" element={
               <ProtectedRoute>
@@ -69,9 +71,18 @@ export default function AppRouter() {
                 <PlaceholderPage title="Inventario — Categorías" />
               </ProtectedRoute>
             } />
+
+            {/* Tarea 1 — Marca */}
             <Route path="/inventory/brands" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Marcas" />
+                <MarcasPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Tarea 1 — Unidad de Medida */}
+            <Route path="/inventory/units" element={
+              <ProtectedRoute>
+                <UnidadesMedidaPage />
               </ProtectedRoute>
             } />
 
@@ -135,7 +146,14 @@ export default function AppRouter() {
                 <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
               </ProtectedRoute>
             } />
-            
+
+            {/* Tarea 1 — Ubicación Física */}
+            <Route path="/warehouse/locations" element={
+              <ProtectedRoute>
+                <UbicacionesFisicasPage />
+              </ProtectedRoute>
+            } />
+
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
