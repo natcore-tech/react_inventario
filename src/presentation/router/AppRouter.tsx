@@ -5,6 +5,7 @@ import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
 import PlaceholderPage from '../pages/PlaceholderPage'
+import AdminNumerosSeriePage from '../pages/admin/AdminNumerosSeriePage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -84,6 +85,11 @@ export default function AppRouter() {
             <Route path="/inventory/brands" element={
               <ProtectedRoute>
                 <PlaceholderPage title="Inventario — Marcas" />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/serial-numbers" element={
+              <ProtectedRoute>
+                <AdminNumerosSeriePage />
               </ProtectedRoute>
             } />
 

@@ -1,13 +1,14 @@
 // src/presentation/components/AppShell.tsx
 import { Outlet, Link, useNavigate, NavLink } from 'react-router-dom'
-import { 
-  Package, 
-  User, 
-  LogOut, 
-  LayoutDashboard, 
-  Bell, 
+import {
+  Package,
+  User,
+  LogOut,
+  LayoutDashboard,
+  Bell,
   Boxes,
   ShoppingCart,
+  Barcode,
 } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { Button } from '@/presentation/components/ui/button'
@@ -45,7 +46,7 @@ export default function AppShell() {
   const { user, logout } = useAuthStore()
 
   // Ejemplo: Podrías traer esto de un store de Inventario para leer tu "alerta_stock.py"
-  const stockAlertsCount = 3 
+  const stockAlertsCount = 3
 
   async function handleLogout() {
     await logout()
@@ -86,6 +87,9 @@ export default function AppShell() {
               <NavLink to="/warehouse/stock" className={navLinkClass}>
                 Bodegas
               </NavLink>
+              <NavLink to="/inventory/serial-numbers" className={navLinkClass}>
+                Núm. Serie
+              </NavLink>
             </nav>
           )}
 
@@ -94,7 +98,7 @@ export default function AppShell() {
 
           {/* Acciones del lado derecho */}
           <div className="flex items-center gap-2">
-            
+
             {/* Alertas de Stock (Reemplazo del carrito) */}
             {user && (
               <Button
