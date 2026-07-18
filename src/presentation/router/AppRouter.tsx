@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
 import PlaceholderPage from '../pages/PlaceholderPage'
 import AdminNumerosSeriePage from '../pages/admin/AdminNumerosSeriePage'
+import AdminAjustesInventarioPage from '../pages/admin/AdminAjustesInventarioPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -183,7 +184,7 @@ export default function AppRouter() {
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
-                <PlaceholderPage title="Bodega — Ajustes de Inventario (Solo Admin)" />
+                <AdminAjustesInventarioPage />
               </ProtectedRoute>
             } />
 

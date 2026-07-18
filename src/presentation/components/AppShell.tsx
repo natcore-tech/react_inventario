@@ -90,6 +90,10 @@ export default function AppShell() {
               <NavLink to="/inventory/serial-numbers" className={navLinkClass}>
                 Núm. Serie
               </NavLink>
+              <NavLink to="/warehouse/adjustments" className={navLinkClass}>
+                Ajustes inventario
+              </NavLink>
+
             </nav>
           )}
 
