@@ -5,6 +5,7 @@ import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
 import PlaceholderPage from '../pages/PlaceholderPage'
+import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -51,7 +52,7 @@ export default function AppRouter() {
 
           {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
           <Route element={<AppShell />}>
-            
+
             {/* Dashboard Principal */}
             <Route path="/" element={
               <ProtectedRoute>
@@ -124,7 +125,13 @@ export default function AppRouter() {
                 <ProveedoresPage />
               </ProtectedRoute>
             } />
-
+            <Route path="/purchases/cotizaciones"
+              element={
+                <ProtectedRoute requireStaff>
+                  <AdminCotizacionesPage />
+                </ProtectedRoute>
+              }
+            />
             {/* Bodega — Logística y Control */}
             <Route path="/warehouse/stock" element={
               <ProtectedRoute>
@@ -141,7 +148,7 @@ export default function AppRouter() {
                 <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
               </ProtectedRoute>
             } />
-            
+
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
