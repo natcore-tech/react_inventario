@@ -146,7 +146,7 @@ export default function ProveedoresPage() {
                   <TableCell className="text-sm text-muted-foreground">{proveedor.telefono || '—'}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{proveedor.email || '—'}</TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={proveedor.es_activo ? 'success' : 'destructive'}>
+                    <Badge variant={proveedor.es_activo ? 'default' : 'destructive'}>
                       {proveedor.es_activo ? 'Activo' : 'Inactivo'}
                     </Badge>
                   </TableCell>

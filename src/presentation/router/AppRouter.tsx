@@ -5,13 +5,18 @@ import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
 import PlaceholderPage from '../pages/PlaceholderPage'
-import ProveedoresPage from '../pages/inventory/ProveedoresPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
 // Auth (sin shell) — Estas ya las tienes reales
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
+
+// Compras (rama feat/compras-proveedores)
+// Nota: ProveedoresPage quedo en pages/purchases/ (asi se probo y funciono).
+// OrdenesCompraPage esta en pages/admin/, siguiendo el patron de la guia del profe.
+const ProveedoresPage = lazy(() => import('../pages/inventory/ProveedoresPage'))
+const OrdenesCompraPage = lazy(() => import('../pages/admin/OrdenesCompraPage'))
 
 // El resto de páginas se irán reemplazando por lazy imports reales
 // conforme vayas construyendo los módulos de tu backend.
@@ -46,7 +51,7 @@ export default function AppRouter() {
 
           {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
           <Route element={<AppShell />}>
-
+            
             {/* Dashboard Principal */}
             <Route path="/" element={
               <ProtectedRoute>
@@ -106,7 +111,7 @@ export default function AppRouter() {
             {/* Compras — Flujo de Entrada */}
             <Route path="/purchases/orders" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Compras — Órdenes de Compra" />
+                <OrdenesCompraPage />
               </ProtectedRoute>
             } />
             <Route path="/purchases/orders/:id" element={
@@ -136,7 +141,7 @@ export default function AppRouter() {
                 <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
               </ProtectedRoute>
             } />
-
+            
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
