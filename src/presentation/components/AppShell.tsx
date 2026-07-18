@@ -88,7 +88,7 @@ export default function AppShell() {
               <NavLink to="/warehouse/stock" className={navLinkClass}>
                 Bodegas
               </NavLink>
-              <NavLink to="/purchases/cotizaciones" className={navLinkClass}>
+              <NavLink to="/admin/cotizaciones" className={navLinkClass}>
                 Cotizaciones
               </NavLink>
               

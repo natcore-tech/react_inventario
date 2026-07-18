@@ -125,9 +125,9 @@ export default function AppRouter() {
                 <ProveedoresPage />
               </ProtectedRoute>
             } />
-            <Route path="/purchases/cotizaciones"
+            <Route path="/admin/cotizaciones"
               element={
-                <ProtectedRoute requireStaff>
+                <ProtectedRoute>
                   <AdminCotizacionesPage />
                 </ProtectedRoute>
               }
