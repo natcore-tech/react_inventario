@@ -8,12 +8,17 @@ import PlaceholderPage from '../pages/PlaceholderPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
-// Auth (sin shell) — Estas ya las tienes reales
-const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
+// Auth (sin shell)
+const LoginPage    = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
-// El resto de páginas se irán reemplazando por lazy imports reales
-// conforme vayas construyendo los módulos de tu backend.
+// Inventario
+const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
+
+// Bodega
+const BodegasPage     = lazy(() => import('../pages/warehouse/BodegasPage'))
+const StockBodegaPage = lazy(() => import('../pages/warehouse/StockBodegaPage'))
+const TrasladosPage   = lazy(() => import('../pages/warehouse/TrasladosPage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -40,12 +45,12 @@ export default function AppRouter() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* ── Rutas de autenticación (sin AppShell, acceso público) ── */}
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login"    element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
           {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
           <Route element={<AppShell />}>
-            
+
             {/* Dashboard Principal */}
             <Route path="/" element={
               <ProtectedRoute>
@@ -69,9 +74,11 @@ export default function AppRouter() {
                 <PlaceholderPage title="Inventario — Categorías" />
               </ProtectedRoute>
             } />
+
+            {/* ✅ Marcas — Página real */}
             <Route path="/inventory/brands" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Marcas" />
+                <MarcasPage />
               </ProtectedRoute>
             } />
 
@@ -119,10 +126,11 @@ export default function AppRouter() {
               </ProtectedRoute>
             } />
 
-            {/* Bodega — Logística y Control */}
+            {/* Bodega — Logística y Control ── Páginas reales */}
+            {/* ✅ Stock en Bodegas */}
             <Route path="/warehouse/stock" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Stock Actual" />
+                <StockBodegaPage />
               </ProtectedRoute>
             } />
             <Route path="/warehouse/movements" element={
@@ -130,13 +138,20 @@ export default function AppRouter() {
                 <PlaceholderPage title="Bodega — Movimientos de Inventario" />
               </ProtectedRoute>
             } />
+            {/* ✅ Traslados entre Bodegas */}
             <Route path="/warehouse/transfers" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
+                <TrasladosPage />
               </ProtectedRoute>
             } />
-            
-            {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
+            {/* ✅ Gestión de Bodegas */}
+            <Route path="/warehouse/bodegas" element={
+              <ProtectedRoute>
+                <BodegasPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Ajustes — Solo Admin */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
                 <PlaceholderPage title="Bodega — Ajustes de Inventario (Solo Admin)" />

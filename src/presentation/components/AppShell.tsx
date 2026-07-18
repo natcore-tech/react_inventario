@@ -8,6 +8,9 @@ import {
   Bell, 
   Boxes,
   ShoppingCart,
+  Warehouse,
+  ArrowRightLeft,
+  Tag,
 } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { Button } from '@/presentation/components/ui/button'
@@ -77,6 +80,9 @@ export default function AppShell() {
               <NavLink to="/inventory/products" className={navLinkClass}>
                 Inventario
               </NavLink>
+              <NavLink to="/inventory/brands" className={navLinkClass}>
+                Marcas
+              </NavLink>
               <NavLink to="/sales" className={navLinkClass}>
                 Ventas
               </NavLink>
@@ -84,7 +90,13 @@ export default function AppShell() {
                 Compras
               </NavLink>
               <NavLink to="/warehouse/stock" className={navLinkClass}>
+                Stock
+              </NavLink>
+              <NavLink to="/warehouse/bodegas" className={navLinkClass}>
                 Bodegas
+              </NavLink>
+              <NavLink to="/warehouse/transfers" className={navLinkClass}>
+                Traslados
               </NavLink>
             </nav>
           )}
@@ -176,6 +188,24 @@ export default function AppShell() {
                         <Link to="/inventory/categories" className="flex items-center gap-2 cursor-pointer">
                           <Boxes className="h-4 w-4" />
                           Gestionar Categorías
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/inventory/brands" className="flex items-center gap-2 cursor-pointer">
+                          <Tag className="h-4 w-4" />
+                          Gestionar Marcas
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/warehouse/bodegas" className="flex items-center gap-2 cursor-pointer">
+                          <Warehouse className="h-4 w-4" />
+                          Gestionar Bodegas
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/warehouse/transfers" className="flex items-center gap-2 cursor-pointer">
+                          <ArrowRightLeft className="h-4 w-4" />
+                          Ver Traslados
                         </Link>
                       </DropdownMenuItem>
                     </>
