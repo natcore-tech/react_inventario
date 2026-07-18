@@ -4,7 +4,6 @@ import { Suspense, lazy, useEffect } from 'react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
-import PlaceholderPage from '../pages/PlaceholderPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -12,13 +11,11 @@ import PlaceholderPage from '../pages/PlaceholderPage'
 const LoginPage    = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
-// Inventario
-const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
-
-// Bodega
-const BodegasPage     = lazy(() => import('../pages/warehouse/BodegasPage'))
-const StockBodegaPage = lazy(() => import('../pages/warehouse/StockBodegaPage'))
-const TrasladosPage   = lazy(() => import('../pages/warehouse/TrasladosPage'))
+// ── Bodega ────────────────────────────────────────────────────────────────────
+const BodegasPage              = lazy(() => import('../pages/warehouse/BodegasPage'))
+const StockBodegaPage          = lazy(() => import('../pages/warehouse/StockBodegaPage'))
+const TrasladosPage            = lazy(() => import('../pages/warehouse/TrasladosPage'))
+const TrasladoBodegaDetallePage = lazy(() => import('../pages/warehouse/TrasladoBodegaDetallePage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -48,120 +45,44 @@ export default function AppRouter() {
           <Route path="/login"    element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
+          {/* ── Rutas Privadas de Bodega (con AppShell y ProtectedRoute) ── */}
           <Route element={<AppShell />}>
 
-            {/* Dashboard Principal */}
-            <Route path="/" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Dashboard — Métricas de Inventario" />
-              </ProtectedRoute>
-            } />
+            {/* Redirect raíz → bodegas */}
+            <Route path="/" element={<Navigate to="/warehouse/bodegas" replace />} />
 
-            {/* Inventario — Catálogo Base */}
-            <Route path="/inventory/products" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Productos" />
-              </ProtectedRoute>
-            } />
-            <Route path="/inventory/products/:id" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Detalle de Producto" />
-              </ProtectedRoute>
-            } />
-            <Route path="/inventory/categories" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Categorías" />
-              </ProtectedRoute>
-            } />
-
-            {/* ✅ Marcas — Página real */}
-            <Route path="/inventory/brands" element={
-              <ProtectedRoute>
-                <MarcasPage />
-              </ProtectedRoute>
-            } />
-
-            {/* Ventas — Flujo de Salida */}
-            <Route path="/sales" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Historial" />
-              </ProtectedRoute>
-            } />
-            <Route path="/sales/new" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Nueva Venta / POS" />
-              </ProtectedRoute>
-            } />
-            <Route path="/sales/quotes" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Cotizaciones" />
-              </ProtectedRoute>
-            } />
-            <Route path="/sales/returns" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Devoluciones" />
-              </ProtectedRoute>
-            } />
-            <Route path="/sales/customers" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Clientes" />
-              </ProtectedRoute>
-            } />
-
-            {/* Compras — Flujo de Entrada */}
-            <Route path="/purchases/orders" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Compras — Órdenes de Compra" />
-              </ProtectedRoute>
-            } />
-            <Route path="/purchases/orders/:id" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Compras — Detalle de Orden" />
-              </ProtectedRoute>
-            } />
-            <Route path="/purchases/suppliers" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Compras — Proveedores" />
-              </ProtectedRoute>
-            } />
-
-            {/* Bodega — Logística y Control ── Páginas reales */}
-            {/* ✅ Stock en Bodegas */}
-            <Route path="/warehouse/stock" element={
-              <ProtectedRoute>
-                <StockBodegaPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/warehouse/movements" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Movimientos de Inventario" />
-              </ProtectedRoute>
-            } />
-            {/* ✅ Traslados entre Bodegas */}
-            <Route path="/warehouse/transfers" element={
-              <ProtectedRoute>
-                <TrasladosPage />
-              </ProtectedRoute>
-            } />
-            {/* ✅ Gestión de Bodegas */}
+            {/* ✅ Bodega — Gestión de Bodegas */}
             <Route path="/warehouse/bodegas" element={
               <ProtectedRoute>
                 <BodegasPage />
               </ProtectedRoute>
             } />
 
-            {/* Ajustes — Solo Admin */}
-            <Route path="/warehouse/adjustments" element={
-              <ProtectedRoute requireStaff>
-                <PlaceholderPage title="Bodega — Ajustes de Inventario (Solo Admin)" />
+            {/* ✅ StockBodega — Stock en Bodegas */}
+            <Route path="/warehouse/stock" element={
+              <ProtectedRoute>
+                <StockBodegaPage />
+              </ProtectedRoute>
+            } />
+
+            {/* ✅ TrasladoBodega — Traslados entre Bodegas */}
+            <Route path="/warehouse/transfers" element={
+              <ProtectedRoute>
+                <TrasladosPage />
+              </ProtectedRoute>
+            } />
+
+            {/* ✅ TrasladoBodegaDetalle — Detalle de un Traslado específico */}
+            <Route path="/warehouse/transfers/:id" element={
+              <ProtectedRoute>
+                <TrasladoBodegaDetallePage />
               </ProtectedRoute>
             } />
 
           </Route>
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/warehouse/bodegas" replace />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

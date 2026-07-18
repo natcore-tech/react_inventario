@@ -1,16 +1,13 @@
 // src/presentation/components/AppShell.tsx
 import { Outlet, Link, useNavigate, NavLink } from 'react-router-dom'
-import { 
-  Package, 
-  User, 
-  LogOut, 
-  LayoutDashboard, 
-  Bell, 
-  Boxes,
-  ShoppingCart,
+import {
   Warehouse,
+  User,
+  LogOut,
+  BarChart3,
   ArrowRightLeft,
-  Tag,
+  Package,
+  Bell,
 } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { Button } from '@/presentation/components/ui/button'
@@ -36,7 +33,7 @@ function getInitials(username: string): string {
 /** Clases para los enlaces de navegación activos/inactivos. */
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
-    'text-sm font-medium transition-colors hover:text-primary',
+    'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary',
     isActive ? 'text-primary' : 'text-muted-foreground',
   ].join(' ')
 }
@@ -47,8 +44,8 @@ export default function AppShell() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
 
-  // Ejemplo: Podrías traer esto de un store de Inventario para leer tu "alerta_stock.py"
-  const stockAlertsCount = 3 
+  // Conteo de alertas de stock bajo (hardcoded por ahora)
+  const stockAlertsCount = 0
 
   async function handleLogout() {
     await logout()
@@ -60,43 +57,61 @@ export default function AppShell() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-6 px-4">
+
           {/* Logo / marca */}
           <Link
-            to="/"
+            to="/warehouse/bodegas"
             className="flex items-center gap-2 font-bold text-primary"
           >
             <Package className="h-5 w-5" />
-            <span>Sistema Inventario</span>
+            <span>Gestión de Bodegas</span>
           </Link>
 
           <Separator orientation="vertical" className="h-6" />
 
-          {/* Navegación principal (Solo visible si está logueado) */}
+          {/* Navegación principal — Solo 4 entidades de bodega */}
           {user && (
-            <nav className="flex items-center gap-4">
-              <NavLink to="/" className={navLinkClass}>
-                Dashboard
-              </NavLink>
-              <NavLink to="/inventory/products" className={navLinkClass}>
-                Inventario
-              </NavLink>
-              <NavLink to="/inventory/brands" className={navLinkClass}>
-                Marcas
-              </NavLink>
-              <NavLink to="/sales" className={navLinkClass}>
-                Ventas
-              </NavLink>
-              <NavLink to="/purchases/orders" className={navLinkClass}>
-                Compras
-              </NavLink>
-              <NavLink to="/warehouse/stock" className={navLinkClass}>
-                Stock
-              </NavLink>
+            <nav className="flex items-center gap-1">
+              {/* Bodega */}
               <NavLink to="/warehouse/bodegas" className={navLinkClass}>
-                Bodegas
+                {({ isActive }) => (
+                  <span
+                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent ${
+                      isActive ? 'bg-accent text-primary' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <Warehouse className="h-4 w-4" />
+                    Bodegas
+                  </span>
+                )}
               </NavLink>
+
+              {/* StockBodega */}
+              <NavLink to="/warehouse/stock" className={navLinkClass}>
+                {({ isActive }) => (
+                  <span
+                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent ${
+                      isActive ? 'bg-accent text-primary' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    Stock
+                  </span>
+                )}
+              </NavLink>
+
+              {/* TrasladoBodega */}
               <NavLink to="/warehouse/transfers" className={navLinkClass}>
-                Traslados
+                {({ isActive }) => (
+                  <span
+                    className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent ${
+                      isActive ? 'bg-accent text-primary' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <ArrowRightLeft className="h-4 w-4" />
+                    Traslados
+                  </span>
+                )}
               </NavLink>
             </nav>
           )}
@@ -106,8 +121,8 @@ export default function AppShell() {
 
           {/* Acciones del lado derecho */}
           <div className="flex items-center gap-2">
-            
-            {/* Alertas de Stock (Reemplazo del carrito) */}
+
+            {/* Alertas de Stock */}
             {user && (
               <Button
                 variant="ghost"
@@ -159,57 +174,41 @@ export default function AppShell() {
 
                   <DropdownMenuSeparator />
 
+                  {/* Navegación rápida */}
+                  <DropdownMenuLabel className="text-xs text-muted-foreground uppercase">
+                    Módulo de Bodegas
+                  </DropdownMenuLabel>
+
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/bodegas" className="flex items-center gap-2 cursor-pointer">
+                      <Warehouse className="h-4 w-4" />
+                      Gestión de Bodegas
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/stock" className="flex items-center gap-2 cursor-pointer">
+                      <BarChart3 className="h-4 w-4" />
+                      Stock en Bodegas
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/transfers" className="flex items-center gap-2 cursor-pointer">
+                      <ArrowRightLeft className="h-4 w-4" />
+                      Traslados entre Bodegas
+                    </Link>
+                  </DropdownMenuItem>
+
+                  {/* Opciones de usuario */}
+                  <DropdownMenuSeparator />
+
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
                       <User className="h-4 w-4" />
                       Mi Perfil
                     </Link>
                   </DropdownMenuItem>
-
-                  <DropdownMenuItem asChild>
-                    <Link to="/sales/new" className="flex items-center gap-2 cursor-pointer">
-                      <ShoppingCart className="h-4 w-4" />
-                      Nueva Venta (POS)
-                    </Link>
-                  </DropdownMenuItem>
-
-                  {/* Opciones exclusivas de Administrador */}
-                  {user.is_staff && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuLabel className="text-xs text-muted-foreground uppercase">Administración</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                        <Link to="/" className="flex items-center gap-2 cursor-pointer">
-                          <LayoutDashboard className="h-4 w-4" />
-                          Panel Principal
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/inventory/categories" className="flex items-center gap-2 cursor-pointer">
-                          <Boxes className="h-4 w-4" />
-                          Gestionar Categorías
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/inventory/brands" className="flex items-center gap-2 cursor-pointer">
-                          <Tag className="h-4 w-4" />
-                          Gestionar Marcas
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/warehouse/bodegas" className="flex items-center gap-2 cursor-pointer">
-                          <Warehouse className="h-4 w-4" />
-                          Gestionar Bodegas
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/warehouse/transfers" className="flex items-center gap-2 cursor-pointer">
-                          <ArrowRightLeft className="h-4 w-4" />
-                          Ver Traslados
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
 
                   <DropdownMenuSeparator />
 
@@ -242,7 +241,7 @@ export default function AppShell() {
 
       {/* ── Footer mínimo ───────────────────────────────────────────────────── */}
       <footer className="border-t bg-background py-4 text-center text-sm text-muted-foreground">
-        Sistema de Inventario &copy; {new Date().getFullYear()}
+        Sistema de Gestión de Bodegas &copy; {new Date().getFullYear()}
       </footer>
     </div>
   )

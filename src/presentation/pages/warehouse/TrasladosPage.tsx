@@ -1,7 +1,8 @@
 // src/presentation/pages/warehouse/TrasladosPage.tsx
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTrasladoBodegaStore } from '@/presentation/store/traslado-bodega.store'
-import { ArrowRightLeft, RefreshCw, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { ArrowRightLeft, RefreshCw, AlertCircle, Clock, CheckCircle, XCircle, ChevronRight } from 'lucide-react'
 
 const estadoBadge: Record<
   'EN_TRANSITO' | 'COMPLETADO' | 'CANCELADO',
@@ -25,6 +26,7 @@ const estadoBadge: Record<
 }
 
 export default function TrasladosPage() {
+  const navigate = useNavigate()
   const { traslados, loading, error, fetchTraslados } = useTrasladoBodegaStore()
 
   useEffect(() => {
@@ -56,6 +58,28 @@ export default function TrasladosPage() {
         </button>
       </div>
 
+      {/* Stats */}
+      {!loading && traslados.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-lg border bg-card p-4 shadow-sm">
+            <p className="text-sm text-muted-foreground">Total Traslados</p>
+            <p className="mt-1 text-3xl font-bold">{traslados.length}</p>
+          </div>
+          <div className="rounded-lg border bg-card p-4 shadow-sm">
+            <p className="text-sm text-muted-foreground">En Tránsito</p>
+            <p className="mt-1 text-3xl font-bold text-yellow-600">
+              {traslados.filter((t) => t.estado === 'EN_TRANSITO').length}
+            </p>
+          </div>
+          <div className="rounded-lg border bg-card p-4 shadow-sm">
+            <p className="text-sm text-muted-foreground">Completados</p>
+            <p className="mt-1 text-3xl font-bold text-green-600">
+              {traslados.filter((t) => t.estado === 'COMPLETADO').length}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Error */}
       {error && (
         <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
@@ -73,7 +97,7 @@ export default function TrasladosPage() {
         </div>
       )}
 
-      {/* Lista de traslados */}
+      {/* Lista de traslados — clickeable para ver detalle */}
       {!loading && traslados.length > 0 && (
         <div className="space-y-3">
           {traslados.map((traslado) => {
@@ -81,7 +105,8 @@ export default function TrasladosPage() {
             return (
               <div
                 key={traslado.id}
-                className="rounded-lg border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+                onClick={() => navigate(`/warehouse/transfers/${traslado.id}`)}
+                className="group cursor-pointer rounded-lg border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:border-primary/30"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -92,12 +117,15 @@ export default function TrasladosPage() {
                       <span>{traslado.bodega_destino_nombre}</span>
                     </div>
                   </div>
-                  <span
-                    className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
-                  >
-                    {badge.icon}
-                    {badge.label}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
+                    >
+                      {badge.icon}
+                      {badge.label}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                  </div>
                 </div>
 
                 <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
@@ -112,6 +140,7 @@ export default function TrasladosPage() {
                     })}
                   </span>
                   <span>{traslado.detalles.length} ítem(s)</span>
+                  <span className="text-primary group-hover:underline">Ver detalle →</span>
                 </div>
               </div>
             )
