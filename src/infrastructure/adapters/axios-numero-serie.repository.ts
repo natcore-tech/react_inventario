@@ -6,11 +6,19 @@ import type { NumeroSerie } from '@/domain/entities/numero-serie.entity'
 import type { CreateNumeroSerieDto } from '@/application/dtos/create-numero-serie.dto'
 import type { UpdateNumeroSerieDto } from '@/application/dtos/update-numero-serie.dto'
 
+/** Forma real de la respuesta paginada de DRF (PageNumberPagination). */
+interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
 export class AxiosNumeroSerieRepository implements NumeroSerieRepository {
   async getNumerosSerie(): Promise<NumeroSerie[]> {
     try {
-      const { data } = await apiClient.get<NumeroSerie[]>('/numeros-serie/')
-      return data
+      const { data } = await apiClient.get<PaginatedResponse<NumeroSerie>>('/numeros-serie/')
+      return data.results
     } catch (err) {
       throw parseApiError(err)
     }
