@@ -1,11 +1,11 @@
 // src/presentation/components/AppShell.tsx
 import { Outlet, Link, useNavigate, NavLink } from 'react-router-dom'
-import { 
-  Package, 
-  User, 
-  LogOut, 
-  LayoutDashboard, 
-  Bell, 
+import {
+  Package,
+  User,
+  LogOut,
+  LayoutDashboard,
+  Bell,
   Boxes,
   ShoppingCart,
   ChevronDown,
@@ -48,8 +48,7 @@ export default function AppShell() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
 
-  // Ejemplo: Podrías traer esto de un store de Inventario para leer tu "alerta_stock.py"
-  const stockAlertsCount = 3 
+  const stockAlertsCount = 3
 
   async function handleLogout() {
     await logout()
@@ -72,7 +71,7 @@ export default function AppShell() {
 
           <Separator orientation="vertical" className="h-6" />
 
-          {/* Navegación principal (Solo visible si está logueado) */}
+          {/* Navegación principal */}
           {user && (
             <nav className="flex items-center gap-4">
               <NavLink to="/" className={navLinkClass}>
@@ -122,12 +121,20 @@ export default function AppShell() {
               <NavLink to="/sales" className={navLinkClass}>
                 Ventas
               </NavLink>
+              {/* Enlaces directos de Compras */}
               <NavLink to="/purchases/orders" className={navLinkClass}>
-                Compras
+                Órdenes de Compra
+              </NavLink>
+              <NavLink to="/purchases/suppliers" className={navLinkClass}>
+                Proveedores
               </NavLink>
               <NavLink to="/warehouse/stock" className={navLinkClass}>
                 Bodegas
               </NavLink>
+              <NavLink to="/admin/cotizaciones" className={navLinkClass}>
+                Cotizaciones
+              </NavLink>
+              
             </nav>
           )}
 
@@ -136,8 +143,6 @@ export default function AppShell() {
 
           {/* Acciones del lado derecho */}
           <div className="flex items-center gap-2">
-            
-            {/* Alertas de Stock (Reemplazo del carrito) */}
             {user && (
               <Button
                 variant="ghost"
@@ -160,7 +165,6 @@ export default function AppShell() {
               </Button>
             )}
 
-            {/* Usuario autenticado → menú desplegable */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -196,14 +200,6 @@ export default function AppShell() {
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild>
-                    <Link to="/sales/new" className="flex items-center gap-2 cursor-pointer">
-                      <ShoppingCart className="h-4 w-4" />
-                      Nueva Venta (POS)
-                    </Link>
-                  </DropdownMenuItem>
-
-                  {/* Opciones exclusivas de Administrador */}
                   {user.is_staff && (
                     <>
                       <DropdownMenuSeparator />
@@ -235,7 +231,6 @@ export default function AppShell() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              /* Usuario no autenticado → botón de login */
               <Button asChild size="sm">
                 <Link to="/login">Iniciar sesión</Link>
               </Button>
@@ -244,15 +239,12 @@ export default function AppShell() {
         </div>
       </header>
 
-      {/* ── Contenido principal ─────────────────────────────────────────────── */}
       <main className="flex-1 bg-muted/20">
         <div className="mx-auto max-w-[1400px] px-4 py-6">
-          {/* React Router inyecta aquí el componente de la ruta activa */}
           <Outlet />
         </div>
       </main>
 
-      {/* ── Footer mínimo ───────────────────────────────────────────────────── */}
       <footer className="border-t bg-background py-4 text-center text-sm text-muted-foreground">
         Sistema de Inventario &copy; {new Date().getFullYear()}
       </footer>
