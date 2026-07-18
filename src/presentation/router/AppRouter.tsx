@@ -5,6 +5,7 @@ import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
 import PlaceholderPage from '../pages/PlaceholderPage'
+import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -12,6 +13,11 @@ import PlaceholderPage from '../pages/PlaceholderPage'
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
+// Compras (rama feat/compras-proveedores)
+// Nota: ProveedoresPage quedo en pages/purchases/ (asi se probo y funciono).
+// OrdenesCompraPage esta en pages/admin/, siguiendo el patron de la guia del profe.
+const ProveedoresPage = lazy(() => import('../pages/inventory/ProveedoresPage'))
+const OrdenesCompraPage = lazy(() => import('../pages/admin/OrdenesCompraPage'))
 // 🦸‍♂️ Módulo Comercial y Core (Tus pantallas)
 const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
 const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
@@ -143,7 +149,7 @@ export default function AppRouter() {
             {/* Compras — Flujo de Entrada */}
             <Route path="/purchases/orders" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Compras — Órdenes de Compra" />
+                <OrdenesCompraPage />
               </ProtectedRoute>
             } />
             <Route path="/purchases/orders/:id" element={
@@ -153,10 +159,16 @@ export default function AppRouter() {
             } />
             <Route path="/purchases/suppliers" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Compras — Proveedores" />
+                <ProveedoresPage />
               </ProtectedRoute>
             } />
-
+            <Route path="/admin/cotizaciones"
+              element={
+                <ProtectedRoute>
+                  <AdminCotizacionesPage />
+                </ProtectedRoute>
+              }
+            />
             {/* Bodega — Logística y Control */}
             <Route path="/warehouse/stock" element={
               <ProtectedRoute>
