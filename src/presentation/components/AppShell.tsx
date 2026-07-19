@@ -9,6 +9,10 @@ import {
   Boxes,
   ShoppingCart,
   Barcode,
+  ChevronDown,
+  Tag,
+  Ruler,
+  MapPin,
 } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { Button } from '@/presentation/components/ui/button'
@@ -69,7 +73,7 @@ export default function AppShell() {
 
           <Separator orientation="vertical" className="h-6" />
 
-          {/* Navegación principal (Solo visible si está logueado) */}
+          {/* Navegación principal */}
           {user && (
             <nav className="flex items-center gap-4">
               <NavLink to="/" className={navLinkClass}>
@@ -78,13 +82,79 @@ export default function AppShell() {
               <NavLink to="/inventory/products" className={navLinkClass}>
                 Inventario
               </NavLink>
+
+              {/* ── Menú desplegable: Catálogos base (Tarea 1) ── */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  Catálogos
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Inventario
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link to="/inventory/brands" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Marcas
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/inventory/units" className="flex items-center gap-2 cursor-pointer">
+                      <Ruler className="h-4 w-4" />
+                      Unidades de Medida
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Bodega
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/locations" className="flex items-center gap-2 cursor-pointer">
+                      <MapPin className="h-4 w-4" />
+                      Ubicaciones Físicas
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/bodegas" className="flex items-center gap-2 cursor-pointer">
+                      <Boxes className="h-4 w-4" />
+                      Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/stock-bodegas" className="flex items-center gap-2 cursor-pointer">
+                      <Package className="h-4 w-4" />
+                      Stock Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/traslados-bodega" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Traslado Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/traslados-bodega-detalle" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Traslado Bodega Detalle
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <NavLink to="/sales" className={navLinkClass}>
                 Ventas
               </NavLink>
+              {/* Enlaces directos de Compras */}
               <NavLink to="/purchases/orders" className={navLinkClass}>
-                Compras
+                Órdenes de Compra
               </NavLink>
-              <NavLink to="/warehouse/stock" className={navLinkClass}>
+              <NavLink to="/purchases/suppliers" className={navLinkClass}>
+                Proveedores
+              </NavLink>
+              <NavLink to="/warehouse/bodegas" className={navLinkClass}>
                 Bodegas
               </NavLink>
               <NavLink to="/inventory/serial-numbers" className={navLinkClass}>
@@ -100,6 +170,10 @@ export default function AppShell() {
                 Devoluciones
               </NavLink>
 
+              <NavLink to="/admin/cotizaciones" className={navLinkClass}>
+                Cotizaciones
+              </NavLink>
+              
             </nav>
           )}
 
@@ -132,7 +206,6 @@ export default function AppShell() {
               </Button>
             )}
 
-            {/* Usuario autenticado → menú desplegable */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -168,14 +241,6 @@ export default function AppShell() {
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild>
-                    <Link to="/sales/new" className="flex items-center gap-2 cursor-pointer">
-                      <ShoppingCart className="h-4 w-4" />
-                      Nueva Venta (POS)
-                    </Link>
-                  </DropdownMenuItem>
-
-                  {/* Opciones exclusivas de Administrador */}
                   {user.is_staff && (
                     <>
                       <DropdownMenuSeparator />
@@ -207,7 +272,6 @@ export default function AppShell() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              /* Usuario no autenticado → botón de login */
               <Button asChild size="sm">
                 <Link to="/login">Iniciar sesión</Link>
               </Button>
@@ -216,15 +280,12 @@ export default function AppShell() {
         </div>
       </header>
 
-      {/* ── Contenido principal ─────────────────────────────────────────────── */}
       <main className="flex-1 bg-muted/20">
         <div className="mx-auto max-w-[1400px] px-4 py-6">
-          {/* React Router inyecta aquí el componente de la ruta activa */}
           <Outlet />
         </div>
       </main>
 
-      {/* ── Footer mínimo ───────────────────────────────────────────────────── */}
       <footer className="border-t bg-background py-4 text-center text-sm text-muted-foreground">
         Sistema de Inventario &copy; {new Date().getFullYear()}
       </footer>

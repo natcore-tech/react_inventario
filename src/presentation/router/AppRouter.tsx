@@ -9,6 +9,8 @@ import AdminNumerosSeriePage from '../pages/admin/AdminNumerosSeriePage'
 import AdminAjustesInventarioPage from '../pages/admin/AdminAjustesInventarioPage'
 import AdminAlertasStockPage from '../pages/admin/AdminAlertasStockPage'
 import AdminDevolucionesPage from '../pages/admin/AdminDevolucionesPage'
+import PlaceholderPage from '@/presentation/pages/PlaceholderPage'
+import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -16,6 +18,15 @@ import AdminDevolucionesPage from '../pages/admin/AdminDevolucionesPage'
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
+// Tarea 1 — Entidades base
+const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
+const UnidadesMedidaPage = lazy(() => import('../pages/inventory/UnidadesMedidaPage'))
+const UbicacionesFisicasPage = lazy(() => import('../pages/warehouse/UbicacionesFisicasPage'))
+// Compras (rama feat/compras-proveedores)
+// Nota: ProveedoresPage quedo en pages/purchases/ (asi se probo y funciono).
+// OrdenesCompraPage esta en pages/admin/, siguiendo el patron de la guia del profe.
+const ProveedoresPage = lazy(() => import('../pages/inventory/ProveedoresPage'))
+const OrdenesCompraPage = lazy(() => import('../pages/admin/OrdenesCompraPage'))
 // 🦸‍♂️ Módulo Comercial y Core (Tus pantallas)
 const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
 const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
@@ -29,6 +40,12 @@ const MovimientosPage = lazy(() => import('../pages/facturacion/MovimientosPage'
 
 // El resto de páginas se irán reemplazando por lazy imports reales
 // conforme vayas construyendo los módulos de tu backend.
+
+// ── Bodega ────────────────────────────────────────────────────────────────────
+const BodegasPage              = lazy(() => import('../pages/warehouse/BodegasPage'))
+const StockBodegaPage          = lazy(() => import('../pages/warehouse/StockBodegaPage'))
+const TrasladosPage            = lazy(() => import('../pages/warehouse/TrasladosPage'))
+const TrasladoBodegaDetallePage = lazy(() => import('../pages/warehouse/TrasladoBodegaDetallePage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -85,9 +102,18 @@ export default function AppRouter() {
                 <PlaceholderPage title="Inventario — Categorías" />
               </ProtectedRoute>
             } />
+
+            {/* Tarea 1 — Marca */}
             <Route path="/inventory/brands" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Marcas" />
+                <MarcasPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Tarea 1 — Unidad de Medida */}
+            <Route path="/inventory/units" element={
+              <ProtectedRoute>
+                <UnidadesMedidaPage />
               </ProtectedRoute>
             } />
             <Route path="/inventory/serial-numbers" element={
@@ -152,7 +178,7 @@ export default function AppRouter() {
             {/* Compras — Flujo de Entrada */}
             <Route path="/purchases/orders" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Compras — Órdenes de Compra" />
+                <OrdenesCompraPage />
               </ProtectedRoute>
             } />
             <Route path="/purchases/orders/:id" element={
@@ -162,27 +188,49 @@ export default function AppRouter() {
             } />
             <Route path="/purchases/suppliers" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Compras — Proveedores" />
+                <ProveedoresPage />
               </ProtectedRoute>
             } />
-
+            <Route path="/admin/cotizaciones"
+              element={
+                <ProtectedRoute>
+                  <AdminCotizacionesPage />
+                </ProtectedRoute>
+              }
+            />
             {/* Bodega — Logística y Control */}
+            <Route path="/warehouse/bodegas" element={
+              <ProtectedRoute>
+                <BodegasPage />
+              </ProtectedRoute>
+            } />
+            {/* Tarea 1 — Ubicación Física */}
+            <Route path="/warehouse/locations" element={
+              <ProtectedRoute>
+                <UbicacionesFisicasPage />
+              </ProtectedRoute>
+            } />
             <Route path="/warehouse/stock" element={
               <ProtectedRoute>
-                <MovimientosPage />
+                <StockBodegaPage />
               </ProtectedRoute>
             } />
             <Route path="/warehouse/movements" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Movimientos de Inventario" />
+                <MovimientosPage />
               </ProtectedRoute>
             } />
             <Route path="/warehouse/transfers" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
+                <TrasladosPage />
               </ProtectedRoute>
             } />
-
+            <Route path="/warehouse/transfers/:id" element={
+              <ProtectedRoute>
+                <TrasladoBodegaDetallePage />
+              </ProtectedRoute>
+            } />
+            
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
