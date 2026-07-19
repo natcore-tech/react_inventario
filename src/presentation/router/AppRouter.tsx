@@ -4,6 +4,11 @@ import { Suspense, lazy, useEffect } from 'react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
+import PlaceholderPage from '../pages/PlaceholderPage'
+import AdminNumerosSeriePage from '../pages/admin/AdminNumerosSeriePage'
+import AdminAjustesInventarioPage from '../pages/admin/AdminAjustesInventarioPage'
+import AdminAlertasStockPage from '../pages/admin/AdminAlertasStockPage'
+import AdminDevolucionesPage from '../pages/admin/AdminDevolucionesPage'
 import PlaceholderPage from '@/presentation/pages/PlaceholderPage'
 import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 
@@ -111,6 +116,11 @@ export default function AppRouter() {
                 <UnidadesMedidaPage />
               </ProtectedRoute>
             } />
+            <Route path="/inventory/serial-numbers" element={
+              <ProtectedRoute>
+                <AdminNumerosSeriePage />
+              </ProtectedRoute>
+            } />
 
             {/* Ventas — Flujo de Salida */}
             <Route path="/sales" element={
@@ -145,8 +155,8 @@ export default function AppRouter() {
               </ProtectedRoute>
             } />
             <Route path="/sales/returns" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Devoluciones" />
+              <ProtectedRoute requireStaff>
+                <AdminDevolucionesPage />
               </ProtectedRoute>
             } />
             <Route path="/sales/customers" element={
@@ -224,7 +234,14 @@ export default function AppRouter() {
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
-                <PlaceholderPage title="Bodega — Ajustes de Inventario (Solo Admin)" />
+                <AdminAjustesInventarioPage />
+              </ProtectedRoute>
+            } />
+
+
+            <Route path="/inventory/stock-alerts" element={
+              <ProtectedRoute requireStaff>
+                <AdminAlertasStockPage />
               </ProtectedRoute>
             } />
 

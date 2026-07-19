@@ -8,6 +8,7 @@ import {
   Bell,
   Boxes,
   ShoppingCart,
+  Barcode,
   ChevronDown,
   Tag,
   Ruler,
@@ -48,6 +49,7 @@ export default function AppShell() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
 
+  // Ejemplo: Podrías traer esto de un store de Inventario para leer tu "alerta_stock.py"
   const stockAlertsCount = 3
 
   async function handleLogout() {
@@ -155,6 +157,19 @@ export default function AppShell() {
               <NavLink to="/warehouse/bodegas" className={navLinkClass}>
                 Bodegas
               </NavLink>
+              <NavLink to="/inventory/serial-numbers" className={navLinkClass}>
+                Núm. Serie
+              </NavLink>
+              <NavLink to="/warehouse/adjustments" className={navLinkClass}>
+                Ajustes inventario
+              </NavLink>
+              <NavLink to="/inventory/stock-alerts" className={navLinkClass}>
+                Alertas
+              </NavLink>
+              <NavLink to="/sales/returns" className={navLinkClass}>
+                Devoluciones
+              </NavLink>
+
               <NavLink to="/admin/cotizaciones" className={navLinkClass}>
                 Cotizaciones
               </NavLink>
@@ -167,6 +182,8 @@ export default function AppShell() {
 
           {/* Acciones del lado derecho */}
           <div className="flex items-center gap-2">
+
+            {/* Alertas de Stock (Reemplazo del carrito) */}
             {user && (
               <Button
                 variant="ghost"
