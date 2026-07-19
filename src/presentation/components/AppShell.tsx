@@ -115,6 +115,30 @@ export default function AppShell() {
                       Ubicaciones Físicas
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/bodegas" className="flex items-center gap-2 cursor-pointer">
+                      <Boxes className="h-4 w-4" />
+                      Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/stock-bodegas" className="flex items-center gap-2 cursor-pointer">
+                      <Package className="h-4 w-4" />
+                      Stock Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/traslados-bodega" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Traslado Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/traslados-bodega-detalle" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Traslado Bodega Detalle
+                    </Link>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 

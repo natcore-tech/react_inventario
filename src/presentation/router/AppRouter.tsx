@@ -206,6 +206,28 @@ export default function AppRouter() {
               </ProtectedRoute>
             } />
 
+            {/* Tarea 1 — Entidades de Bodega */}
+            <Route path="/warehouse/bodegas" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Bodega" />
+              </ProtectedRoute>
+            } />
+            <Route path="/warehouse/stock-bodegas" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="StockBodega" />
+              </ProtectedRoute>
+            } />
+            <Route path="/warehouse/traslados-bodega" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="TrasladoBodega" />
+              </ProtectedRoute>
+            } />
+            <Route path="/warehouse/traslados-bodega-detalle" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="TrasladoBodegaDetalle" />
+              </ProtectedRoute>
+            } />
+
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
