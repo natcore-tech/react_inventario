@@ -8,6 +8,7 @@ import PlaceholderPage from '../pages/PlaceholderPage'
 import AdminNumerosSeriePage from '../pages/admin/AdminNumerosSeriePage'
 import AdminAjustesInventarioPage from '../pages/admin/AdminAjustesInventarioPage'
 import AdminAlertasStockPage from '../pages/admin/AdminAlertasStockPage'
+import AdminDevolucionesPage from '../pages/admin/AdminDevolucionesPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -128,8 +129,8 @@ export default function AppRouter() {
               </ProtectedRoute>
             } />
             <Route path="/sales/returns" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Devoluciones" />
+              <ProtectedRoute requireStaff>
+                <AdminDevolucionesPage />
               </ProtectedRoute>
             } />
             <Route path="/sales/customers" element={
