@@ -4,12 +4,16 @@ import { Suspense, lazy, useEffect } from 'react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
+import PlaceholderPage from '@/presentation/pages/PlaceholderPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
-// Auth (sin shell)
-const LoginPage    = lazy(() => import('../pages/auth/LoginPage'))
+// Auth (sin shell) — Estas ya las tienes reales
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
+
+// El resto de páginas se irán reemplazando por lazy imports reales
+// conforme vayas construyendo los módulos de tu backend.
 
 // ── Bodega ────────────────────────────────────────────────────────────────────
 const BodegasPage              = lazy(() => import('../pages/warehouse/BodegasPage'))
@@ -42,47 +46,118 @@ export default function AppRouter() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* ── Rutas de autenticación (sin AppShell, acceso público) ── */}
-          <Route path="/login"    element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* ── Rutas Privadas de Bodega (con AppShell y ProtectedRoute) ── */}
+          {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
           <Route element={<AppShell />}>
+            
+            {/* Dashboard Principal */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Dashboard — Métricas de Inventario" />
+              </ProtectedRoute>
+            } />
 
-            {/* Redirect raíz → bodegas */}
-            <Route path="/" element={<Navigate to="/warehouse/bodegas" replace />} />
+            {/* Inventario — Catálogo Base */}
+            <Route path="/inventory/products" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Inventario — Productos" />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/products/:id" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Inventario — Detalle de Producto" />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/categories" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Inventario — Categorías" />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/brands" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Inventario — Marcas" />
+              </ProtectedRoute>
+            } />
 
-            {/* ✅ Bodega — Gestión de Bodegas */}
+            {/* Ventas — Flujo de Salida */}
+            <Route path="/sales" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Ventas — Historial" />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/new" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Ventas — Nueva Venta / POS" />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/quotes" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Ventas — Cotizaciones" />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/returns" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Ventas — Devoluciones" />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales/customers" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Ventas — Clientes" />
+              </ProtectedRoute>
+            } />
+
+            {/* Compras — Flujo de Entrada */}
+            <Route path="/purchases/orders" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Compras — Órdenes de Compra" />
+              </ProtectedRoute>
+            } />
+            <Route path="/purchases/orders/:id" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Compras — Detalle de Orden" />
+              </ProtectedRoute>
+            } />
+            <Route path="/purchases/suppliers" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Compras — Proveedores" />
+              </ProtectedRoute>
+            } />
+
+            {/* Bodega — Logística y Control */}
             <Route path="/warehouse/bodegas" element={
               <ProtectedRoute>
                 <BodegasPage />
               </ProtectedRoute>
             } />
-
-            {/* ✅ StockBodega — Stock en Bodegas */}
             <Route path="/warehouse/stock" element={
               <ProtectedRoute>
                 <StockBodegaPage />
               </ProtectedRoute>
             } />
-
-            {/* ✅ TrasladoBodega — Traslados entre Bodegas */}
             <Route path="/warehouse/transfers" element={
               <ProtectedRoute>
                 <TrasladosPage />
               </ProtectedRoute>
             } />
-
-            {/* ✅ TrasladoBodegaDetalle — Detalle de un Traslado específico */}
             <Route path="/warehouse/transfers/:id" element={
               <ProtectedRoute>
                 <TrasladoBodegaDetallePage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
+            <Route path="/warehouse/adjustments" element={
+              <ProtectedRoute requireStaff>
+                <PlaceholderPage title="Bodega — Ajustes de Inventario (Solo Admin)" />
               </ProtectedRoute>
             } />
 
           </Route>
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/warehouse/bodegas" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

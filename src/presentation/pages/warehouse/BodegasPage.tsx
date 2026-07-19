@@ -222,8 +222,6 @@ export default function BodegasPage() {
           </form>
         </DialogContent>
       </Dialog>
-        </div>
-      )}
 
       {/* Empty state */}
       {!loading && !error && bodegas.length === 0 && (
