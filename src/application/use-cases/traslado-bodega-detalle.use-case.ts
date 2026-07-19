@@ -20,4 +20,16 @@ export class TrasladoBodegaDetalleUseCase {
   getDetallesPorTraslado(trasladoId: number): Promise<TrasladoBodegaDetalle[]> {
     return this.repository.getDetallesPorTraslado(trasladoId)
   }
+
+  createTrasladoBodegaDetalle(trasladoId: number, detalle: Omit<TrasladoBodegaDetalle, 'id' | 'traslado'>): Promise<TrasladoBodegaDetalle[]> {
+    return this.repository.createTrasladoBodegaDetalle(trasladoId, detalle)
+  }
+
+  updateTrasladoBodegaDetalle(trasladoId: number, detalleId: number, detalle: Partial<Omit<TrasladoBodegaDetalle, 'id' | 'traslado'>>): Promise<TrasladoBodegaDetalle[]> {
+    return this.repository.updateTrasladoBodegaDetalle(trasladoId, detalleId, detalle)
+  }
+
+  deleteTrasladoBodegaDetalle(trasladoId: number, detalleId: number): Promise<TrasladoBodegaDetalle[]> {
+    return this.repository.deleteTrasladoBodegaDetalle(trasladoId, detalleId)
+  }
 }

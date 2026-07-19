@@ -31,4 +31,47 @@ export class AxiosTrasladoBodegaDetalleRepository implements TrasladoBodegaDetal
       throw parseApiError(err)
     }
   }
+
+  /**
+   * Agrega un nuevo detalle parcheando el arreglo de detalles del padre.
+   */
+  async createTrasladoBodegaDetalle(trasladoId: number, detalle: Omit<TrasladoBodegaDetalle, 'id' | 'traslado'>): Promise<TrasladoBodegaDetalle[]> {
+    try {
+      const actuales = await this.getDetallesPorTraslado(trasladoId)
+      const nuevos = [...actuales, detalle]
+      // PATCH al padre con el nuevo arreglo de detalles
+      const { data } = await apiClient.patch<TrasladoConDetalles>(`/traslados-bodegas/${trasladoId}/`, { detalles: nuevos })
+      return data.detalles
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /**
+   * Actualiza un detalle existente parcheando el arreglo de detalles del padre.
+   */
+  async updateTrasladoBodegaDetalle(trasladoId: number, detalleId: number, detalle: Partial<Omit<TrasladoBodegaDetalle, 'id' | 'traslado'>>): Promise<TrasladoBodegaDetalle[]> {
+    try {
+      const actuales = await this.getDetallesPorTraslado(trasladoId)
+      const nuevos = actuales.map(d => d.id === detalleId ? { ...d, ...detalle } : d)
+      const { data } = await apiClient.patch<TrasladoConDetalles>(`/traslados-bodegas/${trasladoId}/`, { detalles: nuevos })
+      return data.detalles
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /**
+   * Elimina un detalle existente parcheando el arreglo de detalles del padre.
+   */
+  async deleteTrasladoBodegaDetalle(trasladoId: number, detalleId: number): Promise<TrasladoBodegaDetalle[]> {
+    try {
+      const actuales = await this.getDetallesPorTraslado(trasladoId)
+      const nuevos = actuales.filter(d => d.id !== detalleId)
+      const { data } = await apiClient.patch<TrasladoConDetalles>(`/traslados-bodegas/${trasladoId}/`, { detalles: nuevos })
+      return data.detalles
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }

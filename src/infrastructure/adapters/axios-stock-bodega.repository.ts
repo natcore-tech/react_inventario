@@ -26,4 +26,33 @@ export class AxiosStockBodegaRepository implements StockBodegaRepository {
       throw parseApiError(err)
     }
   }
+
+  /** POST /stocks-bodegas/ */
+  async createStockBodega(stockBodega: Omit<StockBodega, 'id' | 'bodega_nombre' | 'producto_nombre'>): Promise<StockBodega> {
+    try {
+      const { data } = await apiClient.post<StockBodega>('/stocks-bodegas/', stockBodega)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /** PATCH /stocks-bodegas/{id}/ */
+  async updateStockBodega(id: number, stockBodega: Partial<Omit<StockBodega, 'id' | 'bodega_nombre' | 'producto_nombre'>>): Promise<StockBodega> {
+    try {
+      const { data } = await apiClient.patch<StockBodega>(`/stocks-bodegas/${id}/`, stockBodega)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /** DELETE /stocks-bodegas/{id}/ */
+  async deleteStockBodega(id: number): Promise<void> {
+    try {
+      await apiClient.delete(`/stocks-bodegas/${id}/`)
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }

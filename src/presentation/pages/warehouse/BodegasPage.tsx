@@ -1,14 +1,50 @@
 // src/presentation/pages/warehouse/BodegasPage.tsx
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useBodegaStore } from '@/presentation/store/bodega.store'
-import { Warehouse, RefreshCw, AlertCircle, MapPin, CheckCircle, XCircle } from 'lucide-react'
+import { Warehouse, RefreshCw, AlertCircle, MapPin, CheckCircle, XCircle, Plus, Edit, Trash2 } from 'lucide-react'
+import { Button } from '@/presentation/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/presentation/components/ui/dialog'
+import { Input } from '@/presentation/components/ui/input'
+import { Label } from '@/presentation/components/ui/label'
 
 export default function BodegasPage() {
-  const { bodegas, loading, error, fetchBodegas } = useBodegaStore()
+  const { bodegas, loading, error, fetchBodegas, createBodega, updateBodega, deleteBodega } = useBodegaStore()
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editingBodega, setEditingBodega] = useState<any>(null)
+  
+  const [formData, setFormData] = useState({ nombre: '', direccion: '', activa: true })
 
   useEffect(() => {
     fetchBodegas()
   }, [fetchBodegas])
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await createBodega({ ...formData, direccion: formData.direccion || null })
+    setIsCreateOpen(false)
+    setFormData({ nombre: '', direccion: '', activa: true })
+  }
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingBodega) return
+    await updateBodega(editingBodega.id, { ...formData, direccion: formData.direccion || null })
+    setIsEditOpen(false)
+    setEditingBodega(null)
+  }
+
+  const handleDelete = async (id: number) => {
+    if (confirm('¿Estás seguro de eliminar esta bodega?')) {
+      await deleteBodega(id)
+    }
+  }
+
+  const openEdit = (bodega: any) => {
+    setEditingBodega(bodega)
+    setFormData({ nombre: bodega.nombre, direccion: bodega.direccion || '', activa: bodega.activa })
+    setIsEditOpen(true)
+  }
 
   return (
     <div className="space-y-6">
@@ -25,14 +61,49 @@ export default function BodegasPage() {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => fetchBodegas()}
-          disabled={loading}
-          className="flex items-center gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent disabled:opacity-50"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Actualizar
-        </button>
+        <div className="flex gap-2">
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Nueva Bodega
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Crear Nueva Bodega</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input id="nombre" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="direccion">Dirección</Label>
+                  <Input id="direccion" value={formData.direccion} onChange={(e) => setFormData({ ...formData, direccion: e.target.value })} />
+                </div>
+                <div className="flex items-center gap-2 mt-4">
+                  <input type="checkbox" id="activa" checked={formData.activa} onChange={(e) => setFormData({ ...formData, activa: e.target.checked })} />
+                  <Label htmlFor="activa">Bodega Activa</Label>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
+                  <Button type="submit" disabled={loading}>Guardar</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          <Button
+            onClick={() => fetchBodegas()}
+            disabled={loading}
+            variant="outline"
+            className="flex items-center gap-2 shadow-sm"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -111,8 +182,46 @@ export default function BodegasPage() {
               )}
 
               <p className="mt-3 text-xs text-muted-foreground">ID: {bodega.id}</p>
+
+              <div className="mt-4 flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => openEdit(bodega)}>
+                  <Edit className="h-4 w-4 mr-2" /> Editar
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => handleDelete(bodega.id)}>
+                  <Trash2 className="h-4 w-4 mr-2" /> Eliminar
+                </Button>
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Bodega</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-nombre">Nombre</Label>
+              <Input id="edit-nombre" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-direccion">Dirección</Label>
+              <Input id="edit-direccion" value={formData.direccion} onChange={(e) => setFormData({ ...formData, direccion: e.target.value })} />
+            </div>
+            <div className="flex items-center gap-2 mt-4">
+              <input type="checkbox" id="edit-activa" checked={formData.activa} onChange={(e) => setFormData({ ...formData, activa: e.target.checked })} />
+              <Label htmlFor="edit-activa">Bodega Activa</Label>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={loading}>Guardar Cambios</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
         </div>
       )}
 

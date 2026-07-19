@@ -26,4 +26,33 @@ export class AxiosTrasladoBodegaRepository implements TrasladoBodegaRepository {
       throw parseApiError(err)
     }
   }
+
+  /** POST /traslados-bodegas/ */
+  async createTrasladoBodega(trasladoBodega: Omit<TrasladoBodega, 'id' | 'fecha_traslado' | 'bodega_origen_nombre' | 'bodega_destino_nombre'>): Promise<TrasladoBodega> {
+    try {
+      const { data } = await apiClient.post<TrasladoBodega>('/traslados-bodegas/', trasladoBodega)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /** PATCH /traslados-bodegas/{id}/ */
+  async updateTrasladoBodega(id: number, trasladoBodega: Partial<Omit<TrasladoBodega, 'id' | 'fecha_traslado' | 'bodega_origen_nombre' | 'bodega_destino_nombre'>>): Promise<TrasladoBodega> {
+    try {
+      const { data } = await apiClient.patch<TrasladoBodega>(`/traslados-bodegas/${id}/`, trasladoBodega)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /** DELETE /traslados-bodegas/{id}/ */
+  async deleteTrasladoBodega(id: number): Promise<void> {
+    try {
+      await apiClient.delete(`/traslados-bodegas/${id}/`)
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }

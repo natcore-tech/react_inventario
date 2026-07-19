@@ -17,4 +17,16 @@ export class StockBodegaUseCase {
   getStocksBodegas(): Promise<StockBodega[]> {
     return this.repository.getStocksBodegas()
   }
+
+  createStockBodega(stockBodega: Omit<StockBodega, 'id' | 'bodega_nombre' | 'producto_nombre'>): Promise<StockBodega> {
+    return this.repository.createStockBodega(stockBodega)
+  }
+
+  updateStockBodega(id: number, stockBodega: Partial<Omit<StockBodega, 'id' | 'bodega_nombre' | 'producto_nombre'>>): Promise<StockBodega> {
+    return this.repository.updateStockBodega(id, stockBodega)
+  }
+
+  deleteStockBodega(id: number): Promise<void> {
+    return this.repository.deleteStockBodega(id)
+  }
 }

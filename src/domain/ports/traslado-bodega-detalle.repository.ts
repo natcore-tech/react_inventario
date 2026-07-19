@@ -15,4 +15,13 @@ export interface TrasladoBodegaDetalleRepository {
    * desde GET /traslados-bodegas/{trasladoId}/.
    */
   getDetallesPorTraslado(trasladoId: number): Promise<TrasladoBodegaDetalle[]>
+
+  /** Agrega un detalle a un traslado existente (generalmente a través de PATCH al traslado) */
+  createTrasladoBodegaDetalle(trasladoId: number, detalle: Omit<TrasladoBodegaDetalle, 'id' | 'traslado'>): Promise<TrasladoBodegaDetalle[]>
+
+  /** Actualiza un detalle existente de un traslado */
+  updateTrasladoBodegaDetalle(trasladoId: number, detalleId: number, detalle: Partial<Omit<TrasladoBodegaDetalle, 'id' | 'traslado'>>): Promise<TrasladoBodegaDetalle[]>
+
+  /** Elimina un detalle de un traslado */
+  deleteTrasladoBodegaDetalle(trasladoId: number, detalleId: number): Promise<TrasladoBodegaDetalle[]>
 }

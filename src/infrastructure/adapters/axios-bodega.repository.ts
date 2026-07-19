@@ -26,4 +26,33 @@ export class AxiosBodegaRepository implements BodegaRepository {
       throw parseApiError(err)
     }
   }
+
+  /** POST /bodegas/ */
+  async createBodega(bodega: Omit<Bodega, 'id'>): Promise<Bodega> {
+    try {
+      const { data } = await apiClient.post<Bodega>('/bodegas/', bodega)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /** PATCH /bodegas/{id}/ */
+  async updateBodega(id: number, bodega: Partial<Bodega>): Promise<Bodega> {
+    try {
+      const { data } = await apiClient.patch<Bodega>(`/bodegas/${id}/`, bodega)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  /** DELETE /bodegas/{id}/ */
+  async deleteBodega(id: number): Promise<void> {
+    try {
+      await apiClient.delete(`/bodegas/${id}/`)
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }

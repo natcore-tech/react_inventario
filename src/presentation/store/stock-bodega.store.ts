@@ -9,11 +9,14 @@ interface StockBodegaState {
   loading: boolean
   error: string | null
   fetchStocks: () => Promise<void>
+  createStockBodega: (stockBodega: Omit<StockBodega, 'id' | 'bodega_nombre' | 'producto_nombre'>) => Promise<void>
+  updateStockBodega: (id: number, stockBodega: Partial<Omit<StockBodega, 'id' | 'bodega_nombre' | 'producto_nombre'>>) => Promise<void>
+  deleteStockBodega: (id: number) => Promise<void>
 }
 
 const useCase = new StockBodegaUseCase(new AxiosStockBodegaRepository())
 
-export const useStockBodegaStore = create<StockBodegaState>((set) => ({
+export const useStockBodegaStore = create<StockBodegaState>((set, get) => ({
   stocks: [],
   loading: false,
   error: null,
@@ -28,4 +31,40 @@ export const useStockBodegaStore = create<StockBodegaState>((set) => ({
       set({ error: message, loading: false })
     }
   },
+
+  createStockBodega: async (stockBodega) => {
+    set({ loading: true, error: null })
+    try {
+      await useCase.createStockBodega(stockBodega)
+      await get().fetchStocks()
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al crear stock'
+      set({ error: message, loading: false })
+      throw err
+    }
+  },
+
+  updateStockBodega: async (id, stockBodega) => {
+    set({ loading: true, error: null })
+    try {
+      await useCase.updateStockBodega(id, stockBodega)
+      await get().fetchStocks()
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al actualizar stock'
+      set({ error: message, loading: false })
+      throw err
+    }
+  },
+
+  deleteStockBodega: async (id) => {
+    set({ loading: true, error: null })
+    try {
+      await useCase.deleteStockBodega(id)
+      await get().fetchStocks()
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al eliminar stock'
+      set({ error: message, loading: false })
+      throw err
+    }
+  }
 }))

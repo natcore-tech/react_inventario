@@ -14,8 +14,15 @@ import {
   Hash,
   CalendarDays,
   Warehouse,
+  Plus,
+  Edit,
+  Trash2,
 } from 'lucide-react'
 import type { TrasladoBodega } from '@/domain/entities/traslado-bodega.entity'
+import { Button } from '@/presentation/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/presentation/components/ui/dialog'
+import { Input } from '@/presentation/components/ui/input'
+import { Label } from '@/presentation/components/ui/label'
 
 // ── Badge de estado ──────────────────────────────────────────────────────────
 const estadoBadge: Record<
@@ -42,8 +49,42 @@ const estadoBadge: Record<
 export default function TrasladoBodegaDetallePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { traslados, loading, error, fetchTraslados } = useTrasladoBodegaStore()
+  const { traslados, loading, error, fetchTraslados, createTrasladoBodegaDetalle, updateTrasladoBodegaDetalle, deleteTrasladoBodegaDetalle } = useTrasladoBodegaStore()
   const [traslado, setTraslado] = useState<TrasladoBodega | null>(null)
+  
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editingDetalle, setEditingDetalle] = useState<any>(null)
+  const [formData, setFormData] = useState({ producto: 0, cantidad: 0 })
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!traslado) return
+    await createTrasladoBodegaDetalle(traslado.id, formData)
+    setIsCreateOpen(false)
+    setFormData({ producto: 0, cantidad: 0 })
+  }
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!traslado || !editingDetalle) return
+    await updateTrasladoBodegaDetalle(traslado.id, editingDetalle.id, formData)
+    setIsEditOpen(false)
+    setEditingDetalle(null)
+  }
+
+  const handleDelete = async (detalleId: number) => {
+    if (!traslado) return
+    if (confirm('¿Estás seguro de eliminar este ítem del traslado?')) {
+      await deleteTrasladoBodegaDetalle(traslado.id, detalleId)
+    }
+  }
+
+  const openEdit = (detalle: any) => {
+    setEditingDetalle(detalle)
+    setFormData({ producto: detalle.producto, cantidad: detalle.cantidad })
+    setIsEditOpen(true)
+  }
 
   useEffect(() => {
     if (traslados.length === 0) {
@@ -235,10 +276,38 @@ export default function TrasladoBodegaDetallePage() {
       {/* ── Tabla de detalles ────────────────────────────────────────────── */}
       <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="font-semibold">Líneas de Detalle</h2>
-          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
-            {traslado.detalles.length} ítem(s)
-          </span>
+          <div className="flex items-center gap-3">
+            <h2 className="font-semibold">Líneas de Detalle</h2>
+            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
+              {traslado.detalles.length} ítem(s)
+            </span>
+          </div>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="flex items-center gap-2">
+                <Plus className="h-4 w-4" /> Agregar Ítem
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Agregar Detalle</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="producto">ID Producto</Label>
+                  <Input type="number" id="producto" value={formData.producto || ''} onChange={(e) => setFormData({ ...formData, producto: Number(e.target.value) })} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cantidad">Cantidad</Label>
+                  <Input type="number" id="cantidad" value={formData.cantidad || ''} onChange={(e) => setFormData({ ...formData, cantidad: Number(e.target.value) })} required />
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
+                  <Button type="submit" disabled={loading}>Guardar</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {traslado.detalles.length === 0 ? (
@@ -252,15 +321,10 @@ export default function TrasladoBodegaDetallePage() {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="px-6 py-3 text-left font-medium text-muted-foreground">#</th>
-                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">
-                    ID Detalle
-                  </th>
-                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">
-                    ID Producto
-                  </th>
-                  <th className="px-6 py-3 text-right font-medium text-muted-foreground">
-                    Cantidad
-                  </th>
+                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">ID Detalle</th>
+                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">ID Producto</th>
+                  <th className="px-6 py-3 text-right font-medium text-muted-foreground">Cantidad</th>
+                  <th className="px-6 py-3 text-right font-medium text-muted-foreground">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -282,6 +346,14 @@ export default function TrasladoBodegaDetallePage() {
                     <td className="px-6 py-3 text-right">
                       <span className="font-semibold text-primary">{detalle.cantidad}</span>
                     </td>
+                    <td className="px-6 py-3 text-right space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => openEdit(detalle)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(detalle.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -289,6 +361,29 @@ export default function TrasladoBodegaDetallePage() {
           </div>
         )}
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Detalle</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-producto">ID Producto</Label>
+              <Input type="number" id="edit-producto" value={formData.producto || ''} onChange={(e) => setFormData({ ...formData, producto: Number(e.target.value) })} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-cantidad">Cantidad</Label>
+              <Input type="number" id="edit-cantidad" value={formData.cantidad || ''} onChange={(e) => setFormData({ ...formData, cantidad: Number(e.target.value) })} required />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={loading}>Guardar Cambios</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

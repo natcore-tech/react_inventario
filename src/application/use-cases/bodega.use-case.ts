@@ -17,4 +17,16 @@ export class BodegaUseCase {
   getBodegas(): Promise<Bodega[]> {
     return this.repository.getBodegas()
   }
+
+  createBodega(bodega: Omit<Bodega, 'id'>): Promise<Bodega> {
+    return this.repository.createBodega(bodega)
+  }
+
+  updateBodega(id: number, bodega: Partial<Bodega>): Promise<Bodega> {
+    return this.repository.updateBodega(id, bodega)
+  }
+
+  deleteBodega(id: number): Promise<void> {
+    return this.repository.deleteBodega(id)
+  }
 }

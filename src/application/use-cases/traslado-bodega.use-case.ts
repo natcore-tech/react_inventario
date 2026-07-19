@@ -17,4 +17,16 @@ export class TrasladoBodegaUseCase {
   getTrasladosBodegas(): Promise<TrasladoBodega[]> {
     return this.repository.getTrasladosBodegas()
   }
+
+  createTrasladoBodega(trasladoBodega: Omit<TrasladoBodega, 'id' | 'fecha_traslado' | 'bodega_origen_nombre' | 'bodega_destino_nombre'>): Promise<TrasladoBodega> {
+    return this.repository.createTrasladoBodega(trasladoBodega)
+  }
+
+  updateTrasladoBodega(id: number, trasladoBodega: Partial<Omit<TrasladoBodega, 'id' | 'fecha_traslado' | 'bodega_origen_nombre' | 'bodega_destino_nombre'>>): Promise<TrasladoBodega> {
+    return this.repository.updateTrasladoBodega(id, trasladoBodega)
+  }
+
+  deleteTrasladoBodega(id: number): Promise<void> {
+    return this.repository.deleteTrasladoBodega(id)
+  }
 }
