@@ -26,4 +26,39 @@ export class AxiosUnidadMedidaRepository implements UnidadMedidaRepository {
       throw parseApiError(err)
     }
   }
+
+  async getUnidadMedidaById(id: number): Promise<UnidadMedida> {
+    try {
+      const { data } = await apiClient.get<UnidadMedida>(`/unidades-medida/${id}/`)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async createUnidadMedida(unidadData: Omit<UnidadMedida, 'id' | 'descripcion_completa'>): Promise<UnidadMedida> {
+    try {
+      const { data } = await apiClient.post<UnidadMedida>('/unidades-medida/', unidadData)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async updateUnidadMedida(id: number, unidadData: Partial<UnidadMedida>): Promise<UnidadMedida> {
+    try {
+      const { data } = await apiClient.patch<UnidadMedida>(`/unidades-medida/${id}/`, unidadData)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async deleteUnidadMedida(id: number): Promise<void> {
+    try {
+      await apiClient.delete(`/unidades-medida/${id}/`)
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }

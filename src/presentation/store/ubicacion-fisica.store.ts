@@ -17,6 +17,12 @@ interface UbicacionFisicaState {
 interface UbicacionFisicaActions {
   /** Carga todas las ubicaciones físicas desde el API. */
   fetchUbicaciones(): Promise<void>
+  /** Crea una nueva ubicación física */
+  createUbicacion(data: Omit<UbicacionFisica, 'id' | 'coordenada_exacta'>): Promise<void>
+  /** Actualiza una ubicación física */
+  updateUbicacion(id: number, data: Partial<UbicacionFisica>): Promise<void>
+  /** Elimina una ubicación física */
+  deleteUbicacion(id: number): Promise<void>
   /** Limpia el error actual. */
   clearError(): void
 }
@@ -42,6 +48,60 @@ export const useUbicacionFisicaStore = create<UbicacionFisicaState & UbicacionFi
         isLoading: false,
         error: apiErr.detail ?? apiErr.message ?? 'Error al cargar las ubicaciones físicas',
       })
+    }
+  },
+
+  async createUbicacion(data: Omit<UbicacionFisica, 'id' | 'coordenada_exacta'>) {
+    set({ isLoading: true, error: null })
+    try {
+      const nuevaUbicacion = await ubicacionFisicaUseCase.createUbicacion(data)
+      set((state) => ({
+        ubicaciones: [...state.ubicaciones, nuevaUbicacion],
+        isLoading: false
+      }))
+    } catch (err: unknown) {
+      const apiErr = err as { detail?: string; message?: string }
+      set({
+        isLoading: false,
+        error: apiErr.detail ?? apiErr.message ?? 'Error al crear la ubicación física',
+      })
+      throw err
+    }
+  },
+
+  async updateUbicacion(id: number, data: Partial<UbicacionFisica>) {
+    set({ isLoading: true, error: null })
+    try {
+      const updatedUbicacion = await ubicacionFisicaUseCase.updateUbicacion(id, data)
+      set((state) => ({
+        ubicaciones: state.ubicaciones.map(u => u.id === id ? updatedUbicacion : u),
+        isLoading: false
+      }))
+    } catch (err: unknown) {
+      const apiErr = err as { detail?: string; message?: string }
+      set({
+        isLoading: false,
+        error: apiErr.detail ?? apiErr.message ?? 'Error al actualizar la ubicación física',
+      })
+      throw err
+    }
+  },
+
+  async deleteUbicacion(id: number) {
+    set({ isLoading: true, error: null })
+    try {
+      await ubicacionFisicaUseCase.deleteUbicacion(id)
+      set((state) => ({
+        ubicaciones: state.ubicaciones.filter(u => u.id !== id),
+        isLoading: false
+      }))
+    } catch (err: unknown) {
+      const apiErr = err as { detail?: string; message?: string }
+      set({
+        isLoading: false,
+        error: apiErr.detail ?? apiErr.message ?? 'Error al eliminar la ubicación física',
+      })
+      throw err
     }
   },
 

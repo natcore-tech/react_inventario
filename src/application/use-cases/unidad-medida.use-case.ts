@@ -17,4 +17,24 @@ export class UnidadMedidaUseCase {
   getUnidadesMedida(): Promise<UnidadMedida[]> {
     return this.repository.getUnidadesMedida()
   }
+
+  /** Obtiene una unidad de medida por su ID. */
+  getUnidadMedidaById(id: number): Promise<UnidadMedida> {
+    return this.repository.getUnidadMedidaById(id)
+  }
+
+  /** Crea una nueva unidad de medida. */
+  createUnidadMedida(data: Omit<UnidadMedida, 'id' | 'descripcion_completa'>): Promise<UnidadMedida> {
+    return this.repository.createUnidadMedida(data)
+  }
+
+  /** Actualiza una unidad de medida existente. */
+  updateUnidadMedida(id: number, data: Partial<UnidadMedida>): Promise<UnidadMedida> {
+    return this.repository.updateUnidadMedida(id, data)
+  }
+
+  /** Elimina una unidad de medida por su ID. */
+  deleteUnidadMedida(id: number): Promise<void> {
+    return this.repository.deleteUnidadMedida(id)
+  }
 }

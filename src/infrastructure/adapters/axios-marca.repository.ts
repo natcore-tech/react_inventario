@@ -26,4 +26,39 @@ export class AxiosMarcaRepository implements MarcaRepository {
       throw parseApiError(err)
     }
   }
+
+  async getMarcaById(id: number): Promise<Marca> {
+    try {
+      const { data } = await apiClient.get<Marca>(`/marcas/${id}/`)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async createMarca(marcaData: Omit<Marca, 'id'>): Promise<Marca> {
+    try {
+      const { data } = await apiClient.post<Marca>('/marcas/', marcaData)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async updateMarca(id: number, marcaData: Partial<Marca>): Promise<Marca> {
+    try {
+      const { data } = await apiClient.patch<Marca>(`/marcas/${id}/`, marcaData)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async deleteMarca(id: number): Promise<void> {
+    try {
+      await apiClient.delete(`/marcas/${id}/`)
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }

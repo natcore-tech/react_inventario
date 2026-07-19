@@ -8,4 +8,16 @@ import type { Marca } from '../entities/marca.entity'
 export interface MarcaRepository {
   /** Devuelve la lista completa de marcas desde GET /marcas/. */
   getMarcas(): Promise<Marca[]>
+
+  /** Obtiene una marca por su ID. */
+  getMarcaById(id: number): Promise<Marca>
+
+  /** Crea una nueva marca. */
+  createMarca(data: Omit<Marca, 'id'>): Promise<Marca>
+
+  /** Actualiza una marca existente. */
+  updateMarca(id: number, data: Partial<Marca>): Promise<Marca>
+
+  /** Elimina una marca por su ID. */
+  deleteMarca(id: number): Promise<void>
 }

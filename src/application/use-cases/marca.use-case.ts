@@ -17,4 +17,24 @@ export class MarcaUseCase {
   getMarcas(): Promise<Marca[]> {
     return this.repository.getMarcas()
   }
+
+  /** Obtiene una marca por su ID. */
+  getMarcaById(id: number): Promise<Marca> {
+    return this.repository.getMarcaById(id)
+  }
+
+  /** Crea una nueva marca. */
+  createMarca(data: Omit<Marca, 'id'>): Promise<Marca> {
+    return this.repository.createMarca(data)
+  }
+
+  /** Actualiza una marca existente. */
+  updateMarca(id: number, data: Partial<Marca>): Promise<Marca> {
+    return this.repository.updateMarca(id, data)
+  }
+
+  /** Elimina una marca por su ID. */
+  deleteMarca(id: number): Promise<void> {
+    return this.repository.deleteMarca(id)
+  }
 }

@@ -26,4 +26,39 @@ export class AxiosUbicacionFisicaRepository implements UbicacionFisicaRepository
       throw parseApiError(err)
     }
   }
+
+  async getUbicacionById(id: number): Promise<UbicacionFisica> {
+    try {
+      const { data } = await apiClient.get<UbicacionFisica>(`/ubicaciones/${id}/`)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async createUbicacion(ubicacionData: Omit<UbicacionFisica, 'id' | 'coordenada_exacta'>): Promise<UbicacionFisica> {
+    try {
+      const { data } = await apiClient.post<UbicacionFisica>('/ubicaciones/', ubicacionData)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async updateUbicacion(id: number, ubicacionData: Partial<UbicacionFisica>): Promise<UbicacionFisica> {
+    try {
+      const { data } = await apiClient.patch<UbicacionFisica>(`/ubicaciones/${id}/`, ubicacionData)
+      return data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
+
+  async deleteUbicacion(id: number): Promise<void> {
+    try {
+      await apiClient.delete(`/ubicaciones/${id}/`)
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }
