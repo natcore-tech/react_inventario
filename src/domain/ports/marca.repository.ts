@@ -1,5 +1,6 @@
 // src/domain/ports/marca.repository.ts
-import type { Marca } from '../entities/marca.entity'
+
+import { Marca } from "../entities/marca.entity"
 
 /**
  * Contrato de acceso a datos para el recurso Marca.

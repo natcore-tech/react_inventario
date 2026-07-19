@@ -205,6 +205,11 @@ export default function AppRouter() {
                 <StockBodegaPage />
               </ProtectedRoute>
             } />
+            <Route path="/warehouse/movements" element={
+              <ProtectedRoute>
+                <MovimientosPage />
+              </ProtectedRoute>
+            } />
             <Route path="/warehouse/transfers" element={
               <ProtectedRoute>
                 <TrasladosPage />

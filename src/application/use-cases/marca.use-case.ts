@@ -1,6 +1,6 @@
 // src/application/use-cases/marca.use-case.ts
+import { Marca } from '@/domain/entities/marca.entity'
 import type { MarcaRepository } from '@/domain/ports/marca.repository'
-import type { Marca } from '@/domain/entities/marca.entity'
 
 /**
  * Caso de uso para el módulo Marca.
