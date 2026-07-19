@@ -13,6 +13,10 @@ import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 
+// Tarea 1 — Entidades base
+const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
+const UnidadesMedidaPage = lazy(() => import('../pages/inventory/UnidadesMedidaPage'))
+const UbicacionesFisicasPage = lazy(() => import('../pages/warehouse/UbicacionesFisicasPage'))
 // Compras (rama feat/compras-proveedores)
 // Nota: ProveedoresPage quedo en pages/purchases/ (asi se probo y funciono).
 // OrdenesCompraPage esta en pages/admin/, siguiendo el patron de la guia del profe.
@@ -87,9 +91,18 @@ export default function AppRouter() {
                 <PlaceholderPage title="Inventario — Categorías" />
               </ProtectedRoute>
             } />
+
+            {/* Tarea 1 — Marca */}
             <Route path="/inventory/brands" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Marcas" />
+                <MarcasPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Tarea 1 — Unidad de Medida */}
+            <Route path="/inventory/units" element={
+              <ProtectedRoute>
+                <UnidadesMedidaPage />
               </ProtectedRoute>
             } />
 
@@ -183,6 +196,35 @@ export default function AppRouter() {
             <Route path="/warehouse/transfers" element={
               <ProtectedRoute>
                 <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
+              </ProtectedRoute>
+            } />
+
+            {/* Tarea 1 — Ubicación Física */}
+            <Route path="/warehouse/locations" element={
+              <ProtectedRoute>
+                <UbicacionesFisicasPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Tarea 1 — Entidades de Bodega */}
+            <Route path="/warehouse/bodegas" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="Bodega" />
+              </ProtectedRoute>
+            } />
+            <Route path="/warehouse/stock-bodegas" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="StockBodega" />
+              </ProtectedRoute>
+            } />
+            <Route path="/warehouse/traslados-bodega" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="TrasladoBodega" />
+              </ProtectedRoute>
+            } />
+            <Route path="/warehouse/traslados-bodega-detalle" element={
+              <ProtectedRoute>
+                <PlaceholderPage title="TrasladoBodegaDetalle" />
               </ProtectedRoute>
             } />
 

@@ -7,6 +7,11 @@ import {
   LayoutDashboard,
   Bell,
   Boxes,
+  ShoppingCart,
+  ChevronDown,
+  Tag,
+  Ruler,
+  MapPin,
 } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { Button } from '@/presentation/components/ui/button'
@@ -75,6 +80,68 @@ export default function AppShell() {
               <NavLink to="/inventory/products" className={navLinkClass}>
                 Inventario
               </NavLink>
+
+              {/* ── Menú desplegable: Catálogos base (Tarea 1) ── */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  Catálogos
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Inventario
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link to="/inventory/brands" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Marcas
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/inventory/units" className="flex items-center gap-2 cursor-pointer">
+                      <Ruler className="h-4 w-4" />
+                      Unidades de Medida
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Bodega
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/locations" className="flex items-center gap-2 cursor-pointer">
+                      <MapPin className="h-4 w-4" />
+                      Ubicaciones Físicas
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/bodegas" className="flex items-center gap-2 cursor-pointer">
+                      <Boxes className="h-4 w-4" />
+                      Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/stock-bodegas" className="flex items-center gap-2 cursor-pointer">
+                      <Package className="h-4 w-4" />
+                      Stock Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/traslados-bodega" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Traslado Bodega
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/warehouse/traslados-bodega-detalle" className="flex items-center gap-2 cursor-pointer">
+                      <Tag className="h-4 w-4" />
+                      Traslado Bodega Detalle
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <NavLink to="/sales" className={navLinkClass}>
                 Ventas
               </NavLink>
