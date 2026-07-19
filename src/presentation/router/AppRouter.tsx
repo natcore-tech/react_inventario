@@ -7,6 +7,7 @@ import AppShell from '@/presentation/components/AppShell'
 import PlaceholderPage from '../pages/PlaceholderPage'
 import AdminNumerosSeriePage from '../pages/admin/AdminNumerosSeriePage'
 import AdminAjustesInventarioPage from '../pages/admin/AdminAjustesInventarioPage'
+import AdminAlertasStockPage from '../pages/admin/AdminAlertasStockPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -185,6 +186,13 @@ export default function AppRouter() {
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
                 <AdminAjustesInventarioPage />
+              </ProtectedRoute>
+            } />
+
+
+            <Route path="/inventory/stock-alerts" element={
+              <ProtectedRoute requireStaff>
+                <AdminAlertasStockPage />
               </ProtectedRoute>
             } />
 
