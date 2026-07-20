@@ -80,7 +80,7 @@ export default function AppShell() {
             className="flex items-center gap-2 font-bold text-primary"
           >
             <Package className="h-5 w-5" />
-            <span>Sistema Inventario</span>
+            <span>Stock Master</span>
           </Link>
 
           <Separator orientation="vertical" className="h-6" />
