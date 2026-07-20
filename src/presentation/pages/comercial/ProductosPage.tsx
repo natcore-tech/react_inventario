@@ -11,6 +11,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  Image as ImageIcon,
 } from 'lucide-react'
 
 import { useProductoStore } from '@/presentation/store/producto.store'
@@ -158,7 +159,7 @@ export default function ProductosPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-muted/40">
-                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">#</th>
+                      <th className="px-4 py-3 text-left font-medium text-muted-foreground w-28">Imagen</th>
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nombre</th>
                       <th className="px-4 py-3 text-left font-medium text-muted-foreground">Categoría</th>
                       <th className="px-4 py-3 text-right font-medium text-muted-foreground">Precio</th>
@@ -175,7 +176,19 @@ export default function ProductosPage() {
                         id={`producto-row-${producto.id}`}
                         className="transition-colors hover:bg-muted/20"
                       >
-                        <td className="px-4 py-3 text-muted-foreground">{producto.id}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/50 shadow-sm transition-transform hover:scale-105">
+                            {producto.image_url ? (
+                              <img 
+                                src={producto.image_url} 
+                                alt={producto.nombre} 
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
+                            )}
+                          </div>
+                        </td>
 
                         <td className="px-4 py-3">
                           <span className="font-medium text-foreground">{producto.nombre}</span>
