@@ -24,10 +24,40 @@ export class AxiosProductoRepository implements ProductoRepository {
     }
   }
 
+  /** 
+   * Función auxiliar para convertir el DTO a FormData si contiene un archivo.
+   * Si no contiene archivo, devuelve el DTO original.
+   */
+  private buildPayload(dto: CreateProductoDto | UpdateProductoDto): FormData | CreateProductoDto | UpdateProductoDto {
+    if ('image' in dto && dto.image instanceof File) {
+      const formData = new FormData()
+      
+      Object.entries(dto).forEach(([key, value]) => {
+        if (value === undefined || value === null) return
+        
+        if (key === 'image') {
+          formData.append('image', value as File)
+        } else if (typeof value === 'boolean') {
+          formData.append(key, value ? 'true' : 'false')
+        } else {
+          formData.append(key, String(value))
+        }
+      })
+      
+      return formData
+    }
+    return dto
+  }
+
   /** POST /productos/ — Crea un nuevo producto. */
   async createProducto(dto: CreateProductoDto): Promise<Producto> {
     try {
-      const { data } = await apiClient.post<Producto>('/productos/', dto)
+      const payload = this.buildPayload(dto)
+      const isFormData = payload instanceof FormData
+      
+      const { data } = await apiClient.post<Producto>('/productos/', payload, {
+        headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+      })
       return data
     } catch (err) {
       throw parseApiError(err)
@@ -37,7 +67,12 @@ export class AxiosProductoRepository implements ProductoRepository {
   /** PATCH /productos/:id/ — Actualiza parcialmente un producto. */
   async updateProducto(id: number, dto: UpdateProductoDto): Promise<Producto> {
     try {
-      const { data } = await apiClient.patch<Producto>(`/productos/${id}/`, dto)
+      const payload = this.buildPayload(dto)
+      const isFormData = payload instanceof FormData
+
+      const { data } = await apiClient.patch<Producto>(`/productos/${id}/`, payload, {
+        headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+      })
       return data
     } catch (err) {
       throw parseApiError(err)

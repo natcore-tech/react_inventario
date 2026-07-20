@@ -7,4 +7,5 @@ export interface ProductoResumen {
   precio: string // DRF DecimalField como string
   stock: number
   es_activo: boolean
+  image_url: string | null
 }
