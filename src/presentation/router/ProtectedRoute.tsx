@@ -46,7 +46,7 @@ export default function ProtectedRoute({
 
   // Autenticado pero sin permisos de staff
   if (requireStaff && !user.is_staff) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/dashboard" replace />
   }
 
   return <>{children}</>

@@ -76,7 +76,7 @@ export default function AppShell() {
         <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-6 px-4">
           {/* Logo / marca */}
           <Link
-            to="/"
+            to="/dashboard"
             className="flex items-center gap-2 font-bold text-primary"
           >
             <Package className="h-5 w-5" />
@@ -88,7 +88,7 @@ export default function AppShell() {
           {/* Navegación principal */}
           {user && (
             <nav className="flex items-center gap-4">
-              <NavLink to="/" className={navLinkClass}>
+              <NavLink to="/dashboard" className={navLinkClass}>
                 Dashboard
               </NavLink>
 
@@ -373,7 +373,7 @@ export default function AppShell() {
                       <DropdownMenuSeparator />
                       <DropdownMenuLabel className="text-xs text-muted-foreground uppercase">Administración</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link to="/" className="flex items-center gap-2 cursor-pointer">
+                        <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
                           <LayoutDashboard className="h-4 w-4" />
                           Panel Principal
                         </Link>

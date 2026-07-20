@@ -39,7 +39,7 @@ export default function LoginPage() {
   const location = useLocation()
 
   // Destino al que redirigir tras login (si vinieron de una ruta protegida)
-  const from = (location.state as { from?: Location })?.from?.pathname ?? '/'
+  const from = (location.state as { from?: Location })?.from?.pathname ?? '/dashboard'
 
   const { login, isLoading, error, clearError, user } = useAuthStore()
 

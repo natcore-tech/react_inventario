@@ -16,6 +16,7 @@ import DashboardRouter from './DashboardRouter'
 
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
+const LandingPage = lazy(() => import('../pages/LandingPage'))
 
 const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
 const UnidadesMedidaPage = lazy(() => import('../pages/inventory/UnidadesMedidaPage'))
@@ -40,8 +41,6 @@ const StockBodegaPage = lazy(() => import('../pages/warehouse/StockBodegaPage'))
 const TrasladosPage = lazy(() => import('../pages/warehouse/TrasladosPage'))
 const TrasladoBodegaDetallePage = lazy(() => import('../pages/warehouse/TrasladoBodegaDetallePage'))
 
-const DashboardUserPage = lazy(() => import('../pages/DashboardUserPage'))
-const DashboardAdminPage = lazy(() => import('../pages/DashboardAdminPage'))
 // ─── Loader global ────────────────────────────────────────────────────────────
 
 function PageLoader() {
@@ -67,6 +66,7 @@ export default function AppRouter() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* ── Rutas de autenticación (sin AppShell, acceso público) ── */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
@@ -74,7 +74,7 @@ export default function AppRouter() {
           <Route element={<AppShell />}>
 
             {/* Dashboard Principal */}
-            <Route path="/" element={
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardRouter />
               </ProtectedRoute>
