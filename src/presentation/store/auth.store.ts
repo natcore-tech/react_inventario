@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => {
     // ── Estado inicial ──────────────────────────────────────────────────────
     user: null,
     tokens: null,
-    isLoading: false,
+    isLoading: true, // Inicializa en true para evitar parpadeos (flash of unauthenticated content) al cargar la app
     error: null,
 
     // ── Acciones ────────────────────────────────────────────────────────────
