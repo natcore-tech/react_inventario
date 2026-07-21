@@ -72,7 +72,7 @@ export default function ProfilePage() {
                     <img 
                       src={previewUrl} 
                       alt="Preview" 
-                      className="h-full w-full object-cover" 
+                      className="h-full w-full object-cover rounded-full" 
                     />
                   ) : (
                     <AvatarFallback className="bg-primary/10 text-primary text-4xl font-semibold">
