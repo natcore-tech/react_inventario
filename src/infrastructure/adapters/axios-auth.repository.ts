@@ -81,4 +81,17 @@ export class AxiosAuthRepository implements AuthRepository {
   clearLocalSession(): void {
     localTokenStorage.clearTokens()
   }
+
+  async updateProfile(data: FormData): Promise<LoggedUser> {
+    try {
+      const response = await apiClient.patch<LoggedUser>('/users/profile/', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return response.data
+    } catch (err) {
+      throw parseApiError(err)
+    }
+  }
 }

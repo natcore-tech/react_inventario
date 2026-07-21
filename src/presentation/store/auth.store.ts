@@ -35,6 +35,8 @@ interface AuthActions {
   clearError(): void
   /** Limpia el estado de sesión sin llamar al servidor (usado por authExpired). */
   _clearSession(): void
+  /** Actualiza el perfil del usuario (nombre, avatar) y actualiza el estado local */
+  updateProfile(data: FormData): Promise<void>
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -111,6 +113,24 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => {
     _clearSession() {
       authUseCase.clearLocalSession()
       set({ user: null, tokens: null, isLoading: false, error: null })
+    },
+
+    async updateProfile(data: FormData) {
+      set({ isLoading: true, error: null })
+      try {
+        const updatedUser = await authUseCase.updateProfile(data)
+        set((state) => ({ 
+          user: state.user ? { ...state.user, ...updatedUser } : updatedUser, 
+          isLoading: false 
+        }))
+      } catch (err: unknown) {
+        const apiErr = err as { detail?: string; message?: string }
+        set({
+          isLoading: false,
+          error: apiErr.detail ?? apiErr.message ?? 'Error al actualizar perfil',
+        })
+        throw err
+      }
     },
   }
 })

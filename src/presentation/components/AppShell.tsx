@@ -342,9 +342,17 @@ export default function AppShell() {
                     aria-label="Menú de usuario"
                   >
                     <Avatar className="h-9 w-9">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                        {getInitials(user.username)}
-                      </AvatarFallback>
+                      {user.avatar_url ? (
+                        <img 
+                          src={user.avatar_url} 
+                          alt={`Avatar de ${user.username}`} 
+                          className="h-full w-full object-cover" 
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                          {getInitials(user.username)}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>

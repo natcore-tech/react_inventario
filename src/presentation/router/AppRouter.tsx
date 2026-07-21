@@ -17,8 +17,10 @@ import DashboardRouter from './DashboardRouter'
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 const LandingPage = lazy(() => import('../pages/LandingPage'))
+const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'))
 
 const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
+const CategoriasPage = lazy(() => import('../pages/inventory/CategoriasPage'))
 const UnidadesMedidaPage = lazy(() => import('../pages/inventory/UnidadesMedidaPage'))
 const UbicacionesFisicasPage = lazy(() => import('../pages/warehouse/UbicacionesFisicasPage'))
 
@@ -80,6 +82,13 @@ export default function AppRouter() {
               </ProtectedRoute>
             } />
 
+            {/* Perfil de Usuario */}
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+
             {/* Inventario — Catálogo Base */}
             <Route path="/inventory/products" element={
               <ProtectedRoute>
@@ -94,7 +103,7 @@ export default function AppRouter() {
             } />
             <Route path="/inventory/categories" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Categorías" />
+                <CategoriasPage />
               </ProtectedRoute>
             } />
 
