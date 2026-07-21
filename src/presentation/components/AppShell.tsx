@@ -346,7 +346,7 @@ export default function AppShell() {
                         <img 
                           src={user.avatar_url} 
                           alt={`Avatar de ${user.username}`} 
-                          className="h-full w-full object-cover" 
+                          className="h-full w-full object-cover rounded-full" 
                         />
                       ) : (
                         <AvatarFallback className="bg-primary text-primary-foreground text-sm">
