@@ -8,7 +8,7 @@ import {
   Minus,
   Trash2,
   Lock,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react'
 
 import { useProductoStore } from '@/presentation/store/producto.store'
@@ -121,24 +121,35 @@ export default function PosPage() {
                 key={prod.id}
                 onClick={() => addItem(prod)}
                 disabled={prod.stock < 1}
-                className="group relative flex flex-col items-center justify-between rounded-xl border border-border bg-card p-4 text-center shadow-sm transition-all hover:border-primary/50 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/50 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <ShoppingCart className="h-8 w-8" />
+                <div className="flex h-32 w-full shrink-0 items-center justify-center overflow-hidden bg-muted/30 text-muted-foreground border-b border-border">
+                  {prod.image_url ? (
+                    <img 
+                      src={prod.image_url} 
+                      alt={prod.nombre} 
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <ShoppingCart className="h-10 w-10 opacity-30" />
+                  )}
                 </div>
-                <div className="w-full space-y-1">
-                  <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-foreground">
-                    {prod.nombre}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">{prod.codigo}</p>
-                </div>
-                <div className="mt-4 flex w-full items-center justify-between border-t border-border pt-3">
-                  <span className="font-bold text-foreground">
-                    ${parseFloat(prod.precio).toFixed(2)}
-                  </span>
-                  <span className={`text-xs font-medium px-2 py-1 rounded-md ${prod.stock > 10 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
-                    Stock: {prod.stock}
-                  </span>
+
+                <div className="flex w-full flex-col p-4 flex-1">
+                  <div className="w-full space-y-1 flex-1">
+                    <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-foreground">
+                      {prod.nombre}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">{prod.codigo}</p>
+                  </div>
+                  <div className="mt-4 flex w-full items-center justify-between border-t border-border pt-3">
+                    <span className="font-bold text-foreground text-base">
+                      ${parseFloat(prod.precio).toFixed(2)}
+                    </span>
+                    <span className={`text-xs font-medium px-2 py-1 rounded-md ${prod.stock > 10 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                      Stock: {prod.stock}
+                    </span>
+                  </div>
                 </div>
               </button>
             ))}

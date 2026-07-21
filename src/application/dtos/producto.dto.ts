@@ -13,6 +13,7 @@ export interface CreateProductoDto {
   stock: number
   es_activo: boolean
   categoria_id: number
+  image?: File | null
 }
 
 /**

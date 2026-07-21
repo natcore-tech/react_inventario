@@ -1,6 +1,6 @@
 // src/presentation/pages/comercial/ProductoFormDialog.tsx
-import { useEffect, useState } from 'react'
-import { Loader2 } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
+import { Loader2, ImagePlus, X } from 'lucide-react'
 
 import { useProductoStore } from '@/presentation/store/producto.store'
 import { categoriaUseCase } from '@/infrastructure/factories/categoria.factory'
@@ -43,6 +43,7 @@ interface FormValues {
   stock: string
   es_activo: boolean
   categoria_id: string
+  image?: File | null
 }
 
 const EMPTY_FORM: FormValues = {
@@ -52,6 +53,7 @@ const EMPTY_FORM: FormValues = {
   stock: '0',
   es_activo: true,
   categoria_id: '',
+  image: null,
 }
 
 // ─── Componente ───────────────────────────────────────────────────────────────
@@ -67,6 +69,9 @@ export default function ProductoFormDialog({
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loadingCats, setLoadingCats] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isEditing = producto !== null
 
@@ -76,6 +81,7 @@ export default function ProductoFormDialog({
 
     clearError()
     setFormError(null)
+    setImagePreview(null)
 
     if (producto) {
       setForm({
@@ -85,7 +91,9 @@ export default function ProductoFormDialog({
         stock: producto.stock.toString(),
         es_activo: producto.es_activo,
         categoria_id: String(producto.categoria.id),
+        image: null,
       })
+      setImagePreview(producto.image_url)
     } else {
       setForm(EMPTY_FORM)
     }
@@ -103,9 +111,33 @@ export default function ProductoFormDialog({
   }, [open])
 
   // ── Handlers ────────────────────────────────────────────────────────────
-  function handleField(field: keyof FormValues, value: string | boolean) {
+  function handleField(field: keyof FormValues, value: string | boolean | File | null) {
     setForm((prev) => ({ ...prev, [field]: value }))
     setFormError(null)
+  }
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tamaño (ej: 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setFormError('La imagen no debe superar los 2MB.')
+      return
+    }
+
+    handleField('image', file)
+    
+    // Crear preview local
+    const reader = new FileReader()
+    reader.onload = (event) => setImagePreview(event.target?.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  function clearImage() {
+    handleField('image', null)
+    setImagePreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -127,6 +159,11 @@ export default function ProductoFormDialog({
       stock: parseInt(form.stock),
       es_activo: form.es_activo,
       categoria_id: parseInt(form.categoria_id),
+    }
+
+    // Solo agregar image al DTO si el usuario seleccionó un nuevo archivo
+    if (form.image) {
+      dto.image = form.image
     }
 
     try {
@@ -170,6 +207,49 @@ export default function ProductoFormDialog({
                 placeholder="Ej: Laptop Dell XPS 13"
                 disabled={isSaving}
               />
+            </div>
+
+            {/* Imagen del Producto */}
+            <div className="space-y-2">
+              <Label>Imagen del Producto (opcional)</Label>
+              <div className="flex items-center gap-4">
+                <div 
+                  className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-dashed border-border bg-muted/50"
+                >
+                  {imagePreview ? (
+                    <>
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="h-full w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={clearImage}
+                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </>
+                  ) : (
+                    <ImagePlus className="h-6 w-6 text-muted-foreground/50" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Input
+                    ref={fileInputRef}
+                    id="prod-imagen"
+                    type="file"
+                    accept="image/jpeg, image/png, image/webp"
+                    onChange={handleImageChange}
+                    disabled={isSaving}
+                    className="text-sm cursor-pointer"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Formatos: JPG, PNG, WebP. Máximo 2MB.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Descripción */}

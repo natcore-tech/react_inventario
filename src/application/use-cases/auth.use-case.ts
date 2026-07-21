@@ -44,4 +44,8 @@ export class AuthUseCase {
   clearLocalSession(): void {
     this.authRepository.clearLocalSession()
   }
+
+  updateProfile(data: FormData): Promise<import('@/domain/entities/logged-user.entity').LoggedUser> {
+    return this.authRepository.updateProfile(data)
+  }
 }

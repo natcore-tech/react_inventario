@@ -28,6 +28,15 @@ export class AxiosAuthRepository implements AuthRepository {
       })
       const session = toAuthSession(data)
       localTokenStorage.setTokens(session.tokens.access, session.tokens.refresh)
+      
+      // Obtener datos completos del perfil (como el avatar) que no vienen en el login
+      try {
+        const fullProfile = await this.getCurrentUser()
+        session.user = { ...session.user, ...fullProfile }
+      } catch (e) {
+        // ignorar, nos quedamos con los datos básicos del login
+      }
+      
       return session
     } catch (err) {
       throw parseApiError(err)
@@ -44,6 +53,15 @@ export class AxiosAuthRepository implements AuthRepository {
       })
       const session = toAuthSession(data)
       localTokenStorage.setTokens(session.tokens.access, session.tokens.refresh)
+      
+      // Obtener datos completos del perfil (como el avatar) que no vienen en el registro
+      try {
+        const fullProfile = await this.getCurrentUser()
+        session.user = { ...session.user, ...fullProfile }
+      } catch (e) {
+        // ignorar
+      }
+
       return session
     } catch (err) {
       throw parseApiError(err)
@@ -64,10 +82,10 @@ export class AxiosAuthRepository implements AuthRepository {
     localTokenStorage.clearTokens()
   }
 
-  /** GET /auth/me/ — valida que el access token actual siga siendo válido. */
+  /** GET /users/profile/ — valida que el access token actual siga siendo válido. */
   async getCurrentUser(): Promise<LoggedUser> {
     try {
-      const { data } = await apiClient.get<LoggedUser>('/auth/me/')
+      const { data } = await apiClient.get<LoggedUser>('/users/profile/')
       return data
     } catch (err) {
       throw parseApiError(err)
@@ -80,5 +98,18 @@ export class AxiosAuthRepository implements AuthRepository {
 
   clearLocalSession(): void {
     localTokenStorage.clearTokens()
+  }
+
+  async updateProfile(data: FormData): Promise<LoggedUser> {
+    try {
+      const response = await apiClient.patch<LoggedUser>('/users/profile/', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return response.data
+    } catch (err) {
+      throw parseApiError(err)
+    }
   }
 }

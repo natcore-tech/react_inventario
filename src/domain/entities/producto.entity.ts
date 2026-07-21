@@ -29,5 +29,6 @@ export interface Producto {
   stock: number
   en_stock: boolean
   es_activo: boolean
+  image_url: string | null
   categoria: CategoriaResumen
 }

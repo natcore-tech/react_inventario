@@ -23,4 +23,6 @@ export interface AuthRepository {
   getStoredTokens(): AuthTokens | null
   /** Limpia los tokens locales sin llamar al servidor (usado cuando la sesión expira). */
   clearLocalSession(): void
+  /** Actualiza el perfil del usuario (nombre, apellido, avatar) */
+  updateProfile(data: FormData): Promise<LoggedUser>
 }

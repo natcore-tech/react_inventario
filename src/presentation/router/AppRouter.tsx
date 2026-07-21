@@ -4,25 +4,28 @@ import { Suspense, lazy, useEffect } from 'react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import ProtectedRoute from './ProtectedRoute'
 import AppShell from '@/presentation/components/AppShell'
-import PlaceholderPage from '../pages/PlaceholderPage'
+import AdminNumerosSeriePage from '../pages/admin/AdminNumerosSeriePage'
+import AdminAjustesInventarioPage from '../pages/admin/AdminAjustesInventarioPage'
+import AdminAlertasStockPage from '../pages/admin/AdminAlertasStockPage'
+import AdminDevolucionesPage from '../pages/admin/AdminDevolucionesPage'
+import PlaceholderPage from '@/presentation/pages/PlaceholderPage'
 import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
+import DashboardRouter from './DashboardRouter'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
-// Auth (sin shell)
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
+const LandingPage = lazy(() => import('../pages/LandingPage'))
+const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'))
 
-// Tarea 1 — Entidades base
 const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
+const CategoriasPage = lazy(() => import('../pages/inventory/CategoriasPage'))
 const UnidadesMedidaPage = lazy(() => import('../pages/inventory/UnidadesMedidaPage'))
 const UbicacionesFisicasPage = lazy(() => import('../pages/warehouse/UbicacionesFisicasPage'))
-// Compras (rama feat/compras-proveedores)
-// Nota: ProveedoresPage quedo en pages/purchases/ (asi se probo y funciono).
-// OrdenesCompraPage esta en pages/admin/, siguiendo el patron de la guia del profe.
+
 const ProveedoresPage = lazy(() => import('../pages/inventory/ProveedoresPage'))
 const OrdenesCompraPage = lazy(() => import('../pages/admin/OrdenesCompraPage'))
-// 🦸‍♂️ Módulo Comercial y Core (Tus pantallas)
 const ProductosPage = lazy(() => import('../pages/comercial/ProductosPage'))
 const ClientesPage = lazy(() => import('../pages/comercial/ClientesPage'))
 const PromocionesPage = lazy(() => import('../pages/comercial/PromocionesPage'))
@@ -33,8 +36,12 @@ const HistorialVentasPage = lazy(() => import('../pages/facturacion/HistorialVen
 const PosPage = lazy(() => import('../pages/facturacion/PosPage'))
 const MovimientosPage = lazy(() => import('../pages/facturacion/MovimientosPage'))
 
-// El resto de páginas se irán reemplazando por lazy imports reales
-// conforme vayas construyendo los módulos de tu backend.
+
+// ── Bodega ────────────────────────────────────────────────────────────────────
+const BodegasPage = lazy(() => import('../pages/warehouse/BodegasPage'))
+const StockBodegaPage = lazy(() => import('../pages/warehouse/StockBodegaPage'))
+const TrasladosPage = lazy(() => import('../pages/warehouse/TrasladosPage'))
+const TrasladoBodegaDetallePage = lazy(() => import('../pages/warehouse/TrasladoBodegaDetallePage'))
 
 // ─── Loader global ────────────────────────────────────────────────────────────
 
@@ -61,6 +68,7 @@ export default function AppRouter() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* ── Rutas de autenticación (sin AppShell, acceso público) ── */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
@@ -68,9 +76,16 @@ export default function AppRouter() {
           <Route element={<AppShell />}>
 
             {/* Dashboard Principal */}
-            <Route path="/" element={
+            <Route path="/dashboard" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Dashboard — Métricas de Inventario" />
+                <DashboardRouter />
+              </ProtectedRoute>
+            } />
+
+            {/* Perfil de Usuario */}
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             } />
 
@@ -88,7 +103,7 @@ export default function AppRouter() {
             } />
             <Route path="/inventory/categories" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Inventario — Categorías" />
+                <CategoriasPage />
               </ProtectedRoute>
             } />
 
@@ -103,6 +118,11 @@ export default function AppRouter() {
             <Route path="/inventory/units" element={
               <ProtectedRoute>
                 <UnidadesMedidaPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory/serial-numbers" element={
+              <ProtectedRoute>
+                <AdminNumerosSeriePage />
               </ProtectedRoute>
             } />
 
@@ -128,19 +148,14 @@ export default function AppRouter() {
                 <HistorialVentasPage />
               </ProtectedRoute>
             } />
-            <Route path="/sales/customers" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Clientes" />
-              </ProtectedRoute>
-            } />
             <Route path="/sales/quotes" element={
               <ProtectedRoute>
                 <PlaceholderPage title="Ventas — Cotizaciones" />
               </ProtectedRoute>
             } />
             <Route path="/sales/returns" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Ventas — Devoluciones" />
+              <ProtectedRoute requireStaff>
+                <AdminDevolucionesPage />
               </ProtectedRoute>
             } />
             <Route path="/sales/customers" element={
@@ -183,55 +198,49 @@ export default function AppRouter() {
               }
             />
             {/* Bodega — Logística y Control */}
-            <Route path="/warehouse/stock" element={
+            <Route path="/warehouse/bodegas" element={
               <ProtectedRoute>
-                <MovimientosPage />
+                <BodegasPage />
               </ProtectedRoute>
             } />
-            <Route path="/warehouse/movements" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Movimientos de Inventario" />
-              </ProtectedRoute>
-            } />
-            <Route path="/warehouse/transfers" element={
-              <ProtectedRoute>
-                <PlaceholderPage title="Bodega — Traslados entre Bodegas" />
-              </ProtectedRoute>
-            } />
-
             {/* Tarea 1 — Ubicación Física */}
             <Route path="/warehouse/locations" element={
               <ProtectedRoute>
                 <UbicacionesFisicasPage />
               </ProtectedRoute>
             } />
-
-            {/* Tarea 1 — Entidades de Bodega */}
-            <Route path="/warehouse/bodegas" element={
+            <Route path="/warehouse/stock" element={
               <ProtectedRoute>
-                <PlaceholderPage title="Bodega" />
+                <StockBodegaPage />
               </ProtectedRoute>
             } />
-            <Route path="/warehouse/stock-bodegas" element={
+            <Route path="/warehouse/movements" element={
               <ProtectedRoute>
-                <PlaceholderPage title="StockBodega" />
+                <MovimientosPage />
               </ProtectedRoute>
             } />
-            <Route path="/warehouse/traslados-bodega" element={
+            <Route path="/warehouse/transfers" element={
               <ProtectedRoute>
-                <PlaceholderPage title="TrasladoBodega" />
+                <TrasladosPage />
               </ProtectedRoute>
             } />
-            <Route path="/warehouse/traslados-bodega-detalle" element={
+            <Route path="/warehouse/transfers/:id" element={
               <ProtectedRoute>
-                <PlaceholderPage title="TrasladoBodegaDetalle" />
+                <TrasladoBodegaDetallePage />
               </ProtectedRoute>
             } />
 
             {/* Ejemplo de ruta súper protegida (requiere rol de administrador/staff) */}
             <Route path="/warehouse/adjustments" element={
               <ProtectedRoute requireStaff>
-                <PlaceholderPage title="Bodega — Ajustes de Inventario (Solo Admin)" />
+                <AdminAjustesInventarioPage />
+              </ProtectedRoute>
+            } />
+
+
+            <Route path="/inventory/stock-alerts" element={
+              <ProtectedRoute requireStaff>
+                <AdminAlertasStockPage />
               </ProtectedRoute>
             } />
 
