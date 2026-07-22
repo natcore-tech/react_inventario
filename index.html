@@ -1,10 +1,42 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/logo_stock.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>react-inventario</title>
+
+    <!-- SEO -->
+    <title>Stock Master — Sistema de Inventario Inteligente</title>
+    <meta name="description" content="Plataforma de gestión de inventario empresarial para pymes. Controla bodegas, ventas, punto de venta y reportes en tiempo real." />
+    <meta name="theme-color" content="#8B5CF6" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="Stock Master — Sistema de Inventario Inteligente" />
+    <meta property="og:description" content="Gestión de inventario, bodegas, punto de venta y reportes en tiempo real para tu negocio." />
+    <meta property="og:site_name"   content="Stock Master" />
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Theme init: avoid FOUC (Flash of Unstyled Content) -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = saved ? saved === 'dark' : prefersDark !== false;
+          if (!isDark) {
+            document.documentElement.classList.add('light');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

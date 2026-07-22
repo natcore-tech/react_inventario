@@ -11,13 +11,19 @@ import AdminDevolucionesPage from '../pages/admin/AdminDevolucionesPage'
 import PlaceholderPage from '@/presentation/pages/PlaceholderPage'
 import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 import DashboardRouter from './DashboardRouter'
+import PublicLayout from '../components/public/PublicLayout'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
-const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
+const LoginPage    = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
-const LandingPage = lazy(() => import('../pages/LandingPage'))
-const ProfilePage = lazy(() => import('../pages/profile/ProfilePage'))
+const ProfilePage  = lazy(() => import('../pages/profile/ProfilePage'))
+
+// Public section pages (tab-based)
+const HomePage     = lazy(() => import('../pages/public/HomePage'))
+const FeaturesPage = lazy(() => import('../pages/public/FeaturesPage'))
+const AboutPage    = lazy(() => import('../pages/public/AboutPage'))
+const DocsPage     = lazy(() => import('../pages/public/DocsPage'))
 
 const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
 const CategoriasPage = lazy(() => import('../pages/inventory/CategoriasPage'))
@@ -67,9 +73,16 @@ export default function AppRouter() {
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* ── Rutas de autenticación (sin AppShell, acceso público) ── */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          {/* ── Rutas públicas — PublicLayout con tabs ───────────────── */}
+          <Route element={<PublicLayout />}>
+            <Route path="/"        element={<HomePage />} />
+            <Route path="/features" element={<FeaturesPage />} />
+            <Route path="/about"    element={<AboutPage />} />
+            <Route path="/docs"     element={<DocsPage />} />
+          </Route>
+
+          {/* ── Auth (sin layout) ──────────────────────────────────────── */}
+          <Route path="/login"    element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
           {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}

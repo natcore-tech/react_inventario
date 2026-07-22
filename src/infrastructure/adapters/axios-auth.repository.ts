@@ -50,6 +50,8 @@ export class AxiosAuthRepository implements AuthRepository {
         username,
         email,
         password,
+        password1: password,
+        password2: password,
       })
       const session = toAuthSession(data)
       localTokenStorage.setTokens(session.tokens.access, session.tokens.refresh)
