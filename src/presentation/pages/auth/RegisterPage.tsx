@@ -6,13 +6,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import {
   Loader2, ArrowLeft, Eye, EyeOff,
-  CheckCircle2, ShieldCheck, Rocket, Boxes, Zap, Globe,
+  CheckCircle2, ShieldCheck, Sparkles,
 } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
 import { Button } from '@/presentation/components/ui/button'
 import { ThemeToggle } from '@/presentation/components/ui/ThemeToggle'
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
 const schema = z.object({
   username: z.string().min(3, 'Mínimo 3 caracteres').max(150).regex(/^[\w.@+-]+$/, 'Solo letras, números y @ . + - _'),
   email: z.string().min(1, 'Email obligatorio').email('Email inválido'),
@@ -22,28 +21,28 @@ const schema = z.object({
 
 type RegisterFormData = z.infer<typeof schema>
 
-// ─── Password strength indicator ─────────────────────────────────────────────
 function PasswordStrength({ password }: { password: string }) {
   const rules = [
-    { label: 'Mín. 6 chars', ok: password.length >= 6 },
-    { label: 'Número',       ok: /\d/.test(password) },
-    { label: 'Letra',        ok: /[a-zA-Z]/.test(password) },
+    { label: 'Mín. 6 caracteres', ok: password.length >= 6 },
+    { label: 'Contiene número', ok: /\d/.test(password) },
+    { label: 'Contiene letra', ok: /[a-zA-Z]/.test(password) },
   ]
   if (!password) return null
   const score = rules.filter(r => r.ok).length
-  const colors = ['bg-destructive/60', 'bg-amber-400/80', 'bg-primary/80', 'bg-green-400']
+  const colors = ['bg-rose-500', 'bg-amber-400', 'bg-emerald-400']
+
   return (
-    <div className="space-y-1.5 mt-1.5">
-      <div className="flex gap-1">
-        {[0,1,2].map(i => (
-          <div key={i} className={`flex-1 h-1 rounded-full transition-all duration-400 ${i < score ? colors[score] : 'bg-muted/50'}`} />
+    <div className="space-y-2 mt-2">
+      <div className="flex gap-1.5">
+        {[0, 1, 2].map(i => (
+          <div key={i} className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${i < score ? colors[score - 1] : 'bg-muted/50'}`} />
         ))}
       </div>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
         {rules.map(({ label, ok }) => (
           <div key={label} className="flex items-center gap-1">
-            <CheckCircle2 className={`h-3 w-3 transition-colors ${ok ? 'text-green-400' : 'text-muted-foreground/30'}`} />
-            <span className={`text-[10px] transition-colors ${ok ? 'text-green-400 font-medium' : 'text-muted-foreground/40'}`}>{label}</span>
+            <CheckCircle2 className={`h-3 w-3 ${ok ? 'text-emerald-400' : 'text-muted-foreground/40'}`} />
+            <span className={`text-[10px] ${ok ? 'text-emerald-400 font-bold' : 'text-muted-foreground/50'}`}>{label}</span>
           </div>
         ))}
       </div>
@@ -51,21 +50,15 @@ function PasswordStrength({ password }: { password: string }) {
   )
 }
 
-const PERKS = [
-  { icon: ShieldCheck, label: 'JWT + Roles', desc: 'Acceso seguro por perfil' },
-  { icon: Rocket,      label: 'Setup en 5 min', desc: 'Sin tarjeta de crédito' },
-  { icon: Boxes,       label: 'Multi-bodega', desc: 'Sucursales ilimitadas' },
-  { icon: Zap,         label: 'POS incluido', desc: 'Cobros ultrarrápidos' },
-  { icon: Globe,       label: 'Acceso 24/7', desc: 'Desde cualquier lugar' },
-]
-
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const [showPw, setShowPw]       = useState(false)
+  const [showPw, setShowPw] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const { register: registerUser, isLoading, error, clearError, user } = useAuthStore()
 
-  useEffect(() => { if (user) navigate('/dashboard', { replace: true }) }, [user, navigate])
+  useEffect(() => {
+    if (user) navigate('/dashboard', { replace: true })
+  }, [user, navigate])
 
   const { register, handleSubmit, watch, formState: { errors } } =
     useForm<RegisterFormData>({ resolver: zodResolver(schema) })
@@ -74,195 +67,218 @@ export default function RegisterPage() {
 
   async function onSubmit(data: RegisterFormData) {
     clearError()
-    try { await registerUser(data.username, data.email, data.password); navigate('/dashboard', { replace: true }) }
-    catch { /* error in store */ }
+    try {
+      await registerUser(data.username, data.email, data.password)
+      navigate('/dashboard', { replace: true })
+    } catch {
+      /* error is set in auth store */
+    }
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background p-4">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background p-4 sm:p-6 lg:p-8">
 
-      {/* ── Animated background ── */}
-      <div className="absolute inset-0 mesh-gradient" aria-hidden="true" />
-      <div className="absolute inset-0 dot-pattern opacity-20" aria-hidden="true" />
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full bg-primary/14 blur-3xl morph-blob" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[440px] h-[440px] rounded-full bg-accent/8 blur-3xl"
-        style={{ animation: 'morph 13s ease-in-out infinite' }} />
+      {/* ── Background Aesthetics ── */}
+      <div className="absolute inset-0 mesh-gradient opacity-90 pointer-events-none" aria-hidden="true" />
+      <div className="absolute inset-0 dot-pattern opacity-25 pointer-events-none" aria-hidden="true" />
+      <div className="pointer-events-none absolute -top-40 -right-40 w-[650px] h-[650px] rounded-full bg-primary/20 blur-[130px] animate-pulse-subtle" />
+      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-purple-600/15 blur-[120px]" />
 
-      {/* ── Top controls ── */}
-      <div className="absolute top-5 left-5 right-5 flex items-center justify-between z-30">
-        <Link to="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-primary transition-all duration-200 bg-card/55 backdrop-blur-xl px-4 py-2 rounded-full border border-border/50 hover:border-primary/35 shadow-sm">
-          <ArrowLeft className="h-3.5 w-3.5" /> Volver al inicio
+      {/* ── Top Bar ── */}
+      <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-30">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-primary transition-all duration-200 bg-card/70 backdrop-blur-xl px-4 py-2 rounded-full border border-border/50 hover:border-primary/40 shadow-lg"
+        >
+          <ArrowLeft className="h-4 w-4" /> Volver al Inicio
         </Link>
         <ThemeToggle />
       </div>
 
-      {/* ── Split-screen card ── */}
-      <div className="relative z-20 w-full max-w-5xl animate-scale-in-spring my-16">
-        <div className="overflow-hidden rounded-3xl border border-primary/22 bg-card/35 backdrop-blur-2xl shadow-2xl grid grid-cols-1 lg:grid-cols-12">
+      {/* ── Main Split Canvas Card ── */}
+      <div className="relative z-20 w-full max-w-5xl my-16 animate-scale-in">
+        <div className="overflow-hidden rounded-3xl border border-primary/35 bg-card/60 backdrop-blur-2xl shadow-2xl grid grid-cols-1 lg:grid-cols-12">
 
-          {/* ── LEFT: Brand panel ── */}
-          <div className="lg:col-span-5 relative p-8 lg:p-10 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-border/35">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-purple-600/10 to-transparent pointer-events-none" />
+          {/* ── LEFT: Visual Canvas & Benefits ── */}
+          <div className="lg:col-span-6 relative p-8 lg:p-12 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-border/35">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-purple-900/10 to-transparent pointer-events-none" />
 
-            <div className="relative z-10 space-y-5">
+            {/* Header / Brand */}
+            <div className="relative z-10 space-y-6">
               <Link to="/" className="inline-flex items-center gap-3 group">
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-primary/40 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <img src="/logo_stock.png" alt="Stock Master" className="relative h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+                <div className="w-10 h-10 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                  <Sparkles className="h-5 w-5 text-primary" />
                 </div>
-                <span className="text-xl font-extrabold gradient-text tracking-tight">Stock Master</span>
+                <span className="text-2xl font-black gradient-text tracking-tight">Stock Master</span>
               </Link>
-              <div className="space-y-2 pt-1">
-                <span className="section-badge text-[10px]">Registro de Cuenta</span>
-                <h2 className="text-2xl lg:text-3xl font-black tracking-tight leading-tight text-foreground">
-                  Tu negocio merece <span className="gradient-text">control real</span>
-                </h2>
+
+              <div className="space-y-3 pt-2">
+                <span className="section-badge text-[10px] tracking-wider uppercase font-extrabold border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
+                  Registro de Nueva Cuenta
+                </span>
+                <h1 className="text-3xl lg:text-4xl font-black tracking-tight leading-tight text-foreground">
+                  Comienza a Gestionar tu <br />
+                  <span className="gradient-text text-glow">Inventario en Minutos</span>
+                </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Crea tu perfil y accede inmediatamente a todos los módulos operativos y de administración.
+                  Sin tarjeta de crédito requerida. Acceso inmediato a la consola operativa, punto de venta y catálogo.
                 </p>
               </div>
             </div>
 
-            {/* 3D Illustration Container */}
-            <div className="relative z-10 my-4 group">
-              <div className="relative rounded-2xl overflow-hidden border border-primary/30 shadow-xl bg-background/50 backdrop-blur-md">
-                <img
-                  src="/images/login_auth_illustration.png"
-                  alt="Stock Master ERP 3D"
-                  className="w-full h-40 object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-foreground bg-card/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-primary/20">⚡ Alta Disponibilidad</span>
-                  <span className="text-[10px] font-mono text-primary-foreground/80 bg-primary/30 px-2 py-0.5 rounded-md">Sin tarjetas</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Perks list */}
-            <div className="relative z-10 space-y-2 my-2">
-              {PERKS.map(({ icon: Icon, label, desc }) => (
-                <div key={label} className="flex items-center gap-3 py-1 px-2 rounded-xl hover:bg-primary/10 transition-colors duration-200 group">
-                  <div className="w-7 h-7 rounded-lg bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0 group-hover:bg-primary/30 group-hover:scale-105 transition-all duration-250">
-                    <Icon className="h-3.5 w-3.5 text-primary" />
+            {/* Benefits Checklist */}
+            <div className="relative z-10 my-8 space-y-3">
+              {[
+                { title: 'Control Multi-Bodega Sincronizado', desc: 'Gestiona existencias en múltiples sucursales' },
+                { title: 'Terminal POS Ultrarrápida', desc: 'Atiende ventas y emite tickets en segundos' },
+                { title: 'Seguridad JWT + Django REST', desc: 'Roles estStrictos con is_staff para administración' },
+              ].map(({ title, desc }) => (
+                <div key={title} className="p-3.5 rounded-2xl bg-background/50 border border-border/40 flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-500/30">
+                    ✓
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-foreground">{label}</span>
-                    <span className="text-[10px] text-muted-foreground">· {desc}</span>
+                  <div>
+                    <p className="text-xs font-extrabold text-foreground">{title}</p>
+                    <p className="text-[10px] text-muted-foreground">{desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="relative z-10 flex items-center justify-between text-[11px] text-muted-foreground border-t border-border/30 pt-4">
-              <span>© {new Date().getFullYear()} Stock Master</span>
-              <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping-slow" />
-                Registro Seguro JWT
-              </span>
+            {/* Bottom note */}
+            <div className="relative z-10 pt-4 border-t border-border/30">
+              <p className="text-[11px] text-muted-foreground flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
+                Tus datos están protegidos con encriptación SSL y tokens JWT.
+              </p>
             </div>
           </div>
 
-          {/* ── RIGHT: Form panel ── */}
-          <div className="lg:col-span-7 p-8 lg:p-10 flex flex-col justify-center bg-card/15">
-            <div className="max-w-md mx-auto w-full space-y-6">
+          {/* ── RIGHT: Form Container ── */}
+          <div className="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between bg-card/30 backdrop-blur-xl">
 
+            <div className="space-y-6">
               <div className="space-y-1">
-                <h3 className="text-2xl font-extrabold tracking-tight text-foreground">Crear Cuenta</h3>
-                <p className="text-xs text-muted-foreground">Completa el formulario para comenzar gratis</p>
+                <h2 className="text-2xl font-black text-foreground">Crear Cuenta</h2>
+                <p className="text-xs text-muted-foreground">Completa los campos para registrar tu usuario</p>
               </div>
 
+              {/* Error Banner */}
               {error && (
-                <div className="flex items-start gap-2.5 rounded-xl bg-destructive/10 border border-destructive/28 p-3.5 text-xs text-destructive animate-slide-down">
-                  <span className="shrink-0 font-bold mt-0.5">✕</span>
+                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-slide-up">
+                  <span className="font-bold">⚠️ Error:</span>
                   <span>{error}</span>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-
-                {/* Row: username + email */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="reg-user" className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                      Usuario
-                    </label>
-                    <input id="reg-user" type="text" autoComplete="username"
-                      placeholder="mi_usuario" aria-invalid={!!errors.username}
-                      className="glow-input" {...register('username')} />
-                    {errors.username && <p className="text-[11px] text-destructive pl-1">{errors.username.message}</p>}
-                  </div>
-                  <div className="space-y-1.5">
-                    <label htmlFor="reg-email" className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                      Email
-                    </label>
-                    <input id="reg-email" type="email" autoComplete="email"
-                      placeholder="tu@email.com" aria-invalid={!!errors.email}
-                      className="glow-input" {...register('email')} />
-                    {errors.email && <p className="text-[11px] text-destructive pl-1">{errors.email.message}</p>}
-                  </div>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                {/* Username Input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">Nombre de Usuario</label>
+                  <input
+                    {...register('username')}
+                    type="text"
+                    placeholder="Ej: mariagomez"
+                    className="w-full h-11 px-4 rounded-2xl bg-background/70 border border-border/60 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                  />
+                  {errors.username && (
+                    <p className="text-[11px] font-bold text-rose-400">{errors.username.message}</p>
+                  )}
                 </div>
 
-                {/* Password */}
+                {/* Email Input */}
                 <div className="space-y-1.5">
-                  <label htmlFor="reg-pass" className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                    Contraseña
-                  </label>
+                  <label className="text-xs font-bold text-foreground">Correo Electrónico</label>
+                  <input
+                    {...register('email')}
+                    type="email"
+                    placeholder="maria@empresa.com"
+                    className="w-full h-11 px-4 rounded-2xl bg-background/70 border border-border/60 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                  />
+                  {errors.email && (
+                    <p className="text-[11px] font-bold text-rose-400">{errors.email.message}</p>
+                  )}
+                </div>
+
+                {/* Password Input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">Contraseña</label>
                   <div className="relative">
-                    <input id="reg-pass" type={showPw ? 'text' : 'password'}
-                      autoComplete="new-password" placeholder="••••••••"
-                      aria-invalid={!!errors.password}
-                      className="glow-input pr-11" {...register('password')} />
-                    <button type="button" onClick={() => setShowPw(v => !v)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors duration-200 p-0.5 rounded">
+                    <input
+                      {...register('password')}
+                      type={showPw ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      className="w-full h-11 pl-4 pr-11 rounded-2xl bg-background/70 border border-border/60 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw(!showPw)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
                       {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                   <PasswordStrength password={passwordValue} />
-                  {errors.password && <p className="text-[11px] text-destructive pl-1">{errors.password.message}</p>}
+                  {errors.password && (
+                    <p className="text-[11px] font-bold text-rose-400">{errors.password.message}</p>
+                  )}
                 </div>
 
-                {/* Confirm */}
+                {/* Confirm Password Input */}
                 <div className="space-y-1.5">
-                  <label htmlFor="reg-confirm" className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                    Confirmar Contraseña
-                  </label>
+                  <label className="text-xs font-bold text-foreground">Confirmar Contraseña</label>
                   <div className="relative">
-                    <input id="reg-confirm" type={showConfirm ? 'text' : 'password'}
-                      autoComplete="new-password" placeholder="••••••••"
-                      aria-invalid={!!errors.confirmPassword}
-                      className="glow-input pr-11" {...register('confirmPassword')} />
-                    <button type="button" onClick={() => setShowConfirm(v => !v)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors duration-200 p-0.5 rounded">
+                    <input
+                      {...register('confirmPassword')}
+                      type={showConfirm ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      className="w-full h-11 pl-4 pr-11 rounded-2xl bg-background/70 border border-border/60 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
                       {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {errors.confirmPassword && <p className="text-[11px] text-destructive pl-1">{errors.confirmPassword.message}</p>}
+                  {errors.confirmPassword && (
+                    <p className="text-[11px] font-bold text-rose-400">{errors.confirmPassword.message}</p>
+                  )}
                 </div>
 
-                <Button type="submit" id="btn-register-submit"
-                  className="btn-glow w-full h-11 text-sm font-bold mt-1"
-                  disabled={isLoading}>
-                  {isLoading
-                    ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creando cuenta…</>
-                    : 'Crear mi cuenta gratis'}
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="btn-glow w-full h-12 text-sm font-extrabold rounded-2xl transition-all duration-300 mt-2"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Registrando Cuenta...
+                    </span>
+                  ) : (
+                    'Crear Mi Cuenta Gratis'
+                  )}
                 </Button>
               </form>
-
-              <div className="pt-4 border-t border-border/35 text-center">
-                <p className="text-xs text-muted-foreground">
-                  ¿Ya tienes cuenta?{' '}
-                  <Link to="/login" className="font-bold text-primary hover:underline underline-offset-2">
-                    Inicia sesión aquí
-                  </Link>
-                </p>
-              </div>
             </div>
+
+            {/* Bottom Login Link */}
+            <div className="pt-6 text-center border-t border-border/30 mt-4">
+              <p className="text-xs text-muted-foreground">
+                ¿Ya tienes una cuenta activada?{' '}
+                <Link to="/login" className="font-extrabold text-primary hover:underline ml-1">
+                  Inicia sesión aquí
+                </Link>
+              </p>
+            </div>
+
           </div>
 
         </div>
       </div>
+
     </div>
   )
 }

@@ -12,18 +12,17 @@ import PlaceholderPage from '@/presentation/pages/PlaceholderPage'
 import AdminCotizacionesPage from '../pages/admin/AdminCotizacionesPage'
 import DashboardRouter from './DashboardRouter'
 import PublicLayout from '../components/public/PublicLayout'
+import { ErrorBoundary } from '@/presentation/components/ErrorBoundary'
+import HomePage from '../pages/public/HomePage'
+import FeaturesPage from '../pages/public/FeaturesPage'
+import AboutPage from '../pages/public/AboutPage'
+import DocsPage from '../pages/public/DocsPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
 const LoginPage    = lazy(() => import('../pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'))
 const ProfilePage  = lazy(() => import('../pages/profile/ProfilePage'))
-
-// Public section pages (tab-based)
-const HomePage     = lazy(() => import('../pages/public/HomePage'))
-const FeaturesPage = lazy(() => import('../pages/public/FeaturesPage'))
-const AboutPage    = lazy(() => import('../pages/public/AboutPage'))
-const DocsPage     = lazy(() => import('../pages/public/DocsPage'))
 
 const MarcasPage = lazy(() => import('../pages/inventory/MarcasPage'))
 const CategoriasPage = lazy(() => import('../pages/inventory/CategoriasPage'))
@@ -70,8 +69,9 @@ export default function AppRouter() {
   }, [loadSession])
 
   return (
-    <BrowserRouter>
-      <Suspense fallback={<PageLoader />}>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* ── Rutas públicas — PublicLayout con tabs ───────────────── */}
           <Route element={<PublicLayout />}>
@@ -264,5 +264,6 @@ export default function AppRouter() {
         </Routes>
       </Suspense>
     </BrowserRouter>
+  </ErrorBoundary>
   )
 }
