@@ -112,7 +112,10 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => {
 
     _clearSession() {
       authUseCase.clearLocalSession()
-      set({ user: null, tokens: null, isLoading: false, error: null })
+      const state = get()
+      if (state.user !== null || state.tokens !== null) {
+        set({ user: null, tokens: null, isLoading: false, error: null })
+      }
     },
 
     async updateProfile(data: FormData) {

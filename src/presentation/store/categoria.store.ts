@@ -1,4 +1,3 @@
-// src/presentation/store/categoria.store.ts
 import { create } from 'zustand'
 import type { Categoria } from '@/domain/entities/categoria.entity'
 import type { CreateCategoriaDto, UpdateCategoriaDto } from '@/application/dtos/categoria.dto'
@@ -10,7 +9,6 @@ interface CategoriaState {
   isSaving: boolean
   error: string | null
 
-  // Acciones
   loadCategorias: () => Promise<void>
   createCategoria: (dto: CreateCategoriaDto) => Promise<void>
   updateCategoria: (id: number, dto: UpdateCategoriaDto) => Promise<void>
@@ -27,13 +25,14 @@ export const useCategoriaStore = create<CategoriaState>((set, get) => ({
   loadCategorias: async () => {
     set({ isLoading: true, error: null })
     try {
-      const categorias = await categoriaUseCase.getCategorias()
-      set({ categorias, isLoading: false })
+      const apiCategorias = await categoriaUseCase.getCategorias()
+      if (Array.isArray(apiCategorias)) {
+        set({ categorias: apiCategorias, isLoading: false })
+      } else {
+        set({ categorias: [], isLoading: false })
+      }
     } catch (err: any) {
-      set({
-        isLoading: false,
-        error: err.message || 'Error al cargar las categorías',
-      })
+      set({ isLoading: false, error: err?.message || 'Error loading categories' })
     }
   },
 
@@ -72,7 +71,6 @@ export const useCategoriaStore = create<CategoriaState>((set, get) => ({
     try {
       await categoriaUseCase.deleteCategoria(id)
       const current = get().categorias
-      // Eliminar del arreglo local para mantener sincronía con el backend
       set({
         categorias: current.filter((c) => c.id !== id),
         isSaving: false,

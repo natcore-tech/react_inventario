@@ -5,31 +5,61 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import {
-  Loader2, ArrowLeft, Eye, EyeOff, Sparkles, UserCheck, Crown,
+  Loader2,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  ArrowRight,
+  Crown,
+  UserCheck,
+  Store,
+  Sparkles,
+  Fingerprint,
+  Lock,
+  Mail,
 } from 'lucide-react'
 import { useAuthStore } from '@/presentation/store/auth.store'
-import { Button } from '@/presentation/components/ui/button'
-import { ThemeToggle } from '@/presentation/components/ui/ThemeToggle'
 
 const loginSchema = z.object({
-  username: z.string().min(3, 'El usuario o email debe tener al menos 3 caracteres'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  username: z.string().min(3, 'Mínimo 3 caracteres'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
 })
 type LoginFormData = z.infer<typeof loginSchema>
+
+// Imagen de fondo (puedes cambiar la URL)
+const BACKGROUND_IMAGE =
+  'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1920&auto=format&fit=crop'
+
+// Partículas flotantes
+const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
+  id: i,
+  size: Math.random() * 6 + 2,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  delay: Math.random() * 10,
+  duration: Math.random() * 12 + 8,
+  opacity: Math.random() * 0.4 + 0.1,
+}))
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [showPw, setShowPw] = useState(false)
-  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname ?? '/dashboard'
+  const locationState = location.state as { from?: { pathname?: string }; message?: string } | null
+  const from = locationState?.from?.pathname ?? '/'
+  const infoMessage = locationState?.message
   const { login, isLoading, error, clearError, user } = useAuthStore()
 
   useEffect(() => {
     if (user) navigate(from, { replace: true })
   }, [user, from, navigate])
 
-  const { register, handleSubmit, setValue, formState: { errors } } =
-    useForm<LoginFormData>({ resolver: zodResolver(loginSchema) })
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) })
 
   async function onSubmit(data: LoginFormData) {
     clearError()
@@ -37,213 +67,258 @@ export default function LoginPage() {
       await login(data.username, data.password)
       navigate(from, { replace: true })
     } catch {
-      /* error is set in auth store */
+      /* error set in store */
     }
   }
 
-  function fillDemo(userType: 'admin' | 'vendedor') {
+  function fillDemo(type: 'admin' | 'vendedor') {
     clearError()
-    if (userType === 'admin') {
-      setValue('username', 'admin')
-      setValue('password', 'admin1234')
-    } else {
-      setValue('username', 'vendedor')
-      setValue('password', 'vendedor1234')
-    }
+    setValue('username', type === 'admin' ? 'admin' : 'vendedor')
+    setValue('password', type === 'admin' ? 'admin1234' : 'vendedor1234')
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-background p-4 sm:p-6 lg:p-8">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden selection:bg-purple-500/30 selection:text-white">
+      {/* ─── IMAGEN DE FONDO ──────────────────────────────────────────── */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${BACKGROUND_IMAGE})` }}
+      />
+      {/* Overlay oscuro con gradiente para legibilidad */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-950/80 via-[#0A0015]/90 to-indigo-950/80" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBkPSJNMjAgMjB2MjBtMjAtMjBIMHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxNjgsIDg1LCAyNDcsIDAuMDYpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvc3ZnPg==')] opacity-60" />
 
-      {/* ── Background Aesthetics ── */}
-      <div className="absolute inset-0 mesh-gradient opacity-90 pointer-events-none" aria-hidden="true" />
-      <div className="absolute inset-0 dot-pattern opacity-25 pointer-events-none" aria-hidden="true" />
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[650px] h-[650px] rounded-full bg-primary/20 blur-[130px] animate-pulse-subtle" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-purple-600/15 blur-[120px]" />
+      {/* Orbes de luz ambiental */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-purple-600/20 blur-[120px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-indigo-600/15 blur-[100px] animate-pulse delay-1000" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-fuchsia-500/10 blur-[150px] animate-pulse delay-2000" />
 
-      {/* ── Top Bar ── */}
-      <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-30">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-primary transition-all duration-200 bg-card/70 backdrop-blur-xl px-4 py-2 rounded-full border border-border/50 hover:border-primary/40 shadow-lg"
-        >
-          <ArrowLeft className="h-4 w-4" /> Volver al Inicio
-        </Link>
-        <ThemeToggle />
-      </div>
+      {/* Partículas flotantes */}
+      {PARTICLES.map((p) => (
+        <div
+          key={p.id}
+          className="absolute rounded-full bg-purple-400 pointer-events-none"
+          style={{
+            width: p.size,
+            height: p.size,
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            opacity: p.opacity,
+            animation: `floatParticle ${p.duration}s ease-in-out ${p.delay}s infinite alternate`,
+            boxShadow: `0 0 ${p.size * 2}px rgba(168,85,247,0.6)`,
+          }}
+        />
+      ))}
 
-      {/* ── Main Split Canvas Card ── */}
-      <div className="relative z-20 w-full max-w-5xl my-16 animate-scale-in">
-        <div className="overflow-hidden rounded-3xl border border-primary/35 bg-card/60 backdrop-blur-2xl shadow-2xl grid grid-cols-1 lg:grid-cols-12">
+      {/* ─── CONTENEDOR PRINCIPAL ────────────────────────────────────── */}
+      <div className="relative z-10 w-full max-w-6xl mx-4 lg:mx-8 flex flex-col lg:flex-row rounded-3xl overflow-hidden backdrop-blur-xl border border-purple-500/20 shadow-[0_0_80px_rgba(168,85,247,0.15)] bg-black/40">
+        {/* ─── LADO IZQUIERDO — BRANDING Y HERO ────────────────────── */}
+        <div className="w-full lg:w-1/2 p-8 lg:p-12 xl:p-16 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-transparent to-indigo-900/20 pointer-events-none" />
 
-          {/* ── LEFT: Branding & 3D Visual Canvas ── */}
-          <div className="lg:col-span-6 relative p-8 lg:p-12 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-border/35">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-purple-900/10 to-transparent pointer-events-none" />
-
-            {/* Brand Header */}
-            <div className="relative z-10 space-y-6">
-              <Link to="/" className="inline-flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                </div>
-                <span className="text-2xl font-black gradient-text tracking-tight">Stock Master</span>
-              </Link>
-
-              <div className="space-y-3 pt-2">
-                <span className="section-badge text-[10px] tracking-wider uppercase font-extrabold border-primary/40 bg-primary/10">
-                  Consola de Autenticación JWT
-                </span>
-                <h1 className="text-3xl lg:text-4xl font-black tracking-tight leading-tight text-foreground">
-                  Acceso al Sistema <br />
-                  <span className="gradient-text text-glow">ERP Empresarial</span>
-                </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Conéctate a tu panel operativo para supervisar sucursales, facturar en POS y controlar inventarios en tiempo real.
-                </p>
-              </div>
-            </div>
-
-            {/* Center 3D Illustration Canvas */}
-            <div className="relative my-8 group">
-              <div className="absolute inset-0 bg-primary/15 blur-2xl rounded-2xl pointer-events-none" />
-              <img
-                src="/images/login_auth_illustration.png"
-                alt="Stock Master Logística 3D"
-                className="relative w-full h-auto max-h-[240px] object-contain rounded-2xl shadow-xl transition-transform duration-500 group-hover:scale-[1.02]"
-              />
-
-              {/* Overlaid Badges */}
-              <div className="absolute -bottom-3 left-4 glass-card px-3.5 py-2 flex items-center gap-2 border-primary/30 shadow-xl backdrop-blur-xl">
-                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs">
-                  ✓
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-foreground">Django REST JWT</p>
-                  <p className="text-[9px] text-emerald-400">Tokens Encriptados</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Demo Credential Fill Chips */}
-            <div className="relative z-10 pt-4 border-t border-border/30 space-y-2">
-              <p className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider">
-                Prueba Rápida en 1-Clic:
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-4 group relative z-10">
+            <img src="/logo_stock.png" alt="Logo" className="w-16 h-auto drop-shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-105 transition-transform duration-300" />
+            <div>
+              <p className="text-3xl font-black text-white tracking-tight" style={{ textShadow: '0 0 20px rgba(168,85,247,0.8)' }}>
+                NEXUS <span className="text-purple-400 font-light text-xl">Market</span>
               </p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => fillDemo('admin')}
-                  className="flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-primary/15 hover:bg-primary/25 border border-primary/35 text-xs font-extrabold text-foreground transition-all duration-200"
-                >
-                  <Crown className="h-3.5 w-3.5 text-amber-400" />
-                  Admin (`is_staff = true`)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemo('vendedor')}
-                  className="flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-card/80 hover:bg-card border border-border/50 text-xs font-bold text-muted-foreground hover:text-foreground transition-all duration-200"
-                >
-                  <UserCheck className="h-3.5 w-3.5 text-primary" />
-                  Vendedor Operativo
-                </button>
-              </div>
+              <p className="text-xs text-purple-300/40 font-mono uppercase tracking-widest">Comercio en Línea · 2026</p>
+            </div>
+          </Link>
+
+          {/* Centro — Mensaje inspirador */}
+          <div className="flex-1 flex flex-col justify-center space-y-8 py-12 relative z-10">
+            <div className="space-y-4">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-900/40 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-widest">
+                <Fingerprint className="w-3.5 h-3.5" /> Acceso Seguro
+              </span>
+              <h1 className="text-5xl xl:text-6xl font-black text-white leading-tight"
+                style={{ textShadow: '0 0 40px rgba(168,85,247,0.3)' }}>
+                Bienvenido <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-300 to-indigo-400">
+                  al futuro del retail
+                </span>
+              </h1>
+              <p className="text-lg text-purple-200/60 leading-relaxed max-w-md">
+                Accede a tu cuenta para gestionar inventario, realizar pedidos y conectar con tu equipo en tiempo real.
+              </p>
+            </div>
+
+            {/* Beneficios */}
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { icon: Store, text: 'Catálogo con +500 productos exclusivos', color: 'text-purple-400' },
+                { icon: ShieldCheck, text: 'Transacciones protegidas con encriptación', color: 'text-indigo-400' },
+                { icon: Crown, text: 'Panel administrativo de alto rendimiento', color: 'text-amber-400' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-purple-500/20 bg-purple-950/30 backdrop-blur-sm hover:border-purple-400/50 transition-all group">
+                  <div className="w-10 h-10 rounded-xl bg-purple-900/50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <item.icon className={`w-5 h-5 ${item.color}`} />
+                  </div>
+                  <span className="text-sm font-medium text-purple-200/80">{item.text}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* ── RIGHT: Form Container ── */}
-          <div className="lg:col-span-6 p-8 lg:p-12 flex flex-col justify-between bg-card/30 backdrop-blur-xl">
+          {/* Footer */}
+          <div className="flex items-center justify-between text-xs text-purple-400/40 font-mono relative z-10">
+            <span>© 2026 NEXUS Market</span>
+            <div className="flex gap-4">
+            </div>
+          </div>
+        </div>
 
-            <div className="space-y-6">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-black text-foreground">Iniciar Sesión</h2>
-                <p className="text-xs text-muted-foreground">Ingresa tus credenciales de usuario para continuar</p>
+        {/* ─── LADO DERECHO — FORMULARIO ────────────────────────────── */}
+        <div className="w-full lg:w-1/2 p-6 sm:p-10 lg:p-12 flex items-center justify-center relative bg-gradient-to-br from-purple-950/30 to-indigo-950/20 backdrop-blur-sm border-l border-purple-500/10">
+          <div className="w-full max-w-md space-y-8">
+            {/* Logo mobile */}
+            <Link to="/" className="flex lg:hidden items-center gap-3 group">
+              <img src="/logo_stock.png" alt="Logo" className="w-11 h-auto drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
+              <span className="text-xl font-black text-white">NEXUS <span className="text-purple-400 font-light">Market</span></span>
+            </Link>
+
+            {/* Card del formulario con glassmorphism mejorado */}
+            <div className="rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-2xl p-8 sm:p-10 space-y-8 shadow-[0_0_60px_rgba(168,85,247,0.08)] hover:shadow-[0_0_80px_rgba(168,85,247,0.2)] transition-shadow duration-500">
+              {/* Header */}
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black text-white">Iniciar Sesión</h2>
+                <p className="text-base text-purple-300/60">Ingresa tus credenciales para continuar</p>
               </div>
 
-              {/* Error Alert Banner */}
+              {/* Mensaje de redirección */}
+              {infoMessage && (
+                <div className="p-4 rounded-2xl bg-indigo-900/40 border border-indigo-500/40 text-indigo-300 text-sm font-medium flex items-center gap-3">
+                  <ShieldCheck className="w-5 h-5 text-indigo-400 shrink-0" />
+                  {infoMessage}
+                </div>
+              )}
+
+              {/* Error */}
               {error && (
-                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold leading-relaxed flex items-start gap-2.5 animate-slide-up">
-                  <span className="font-bold">⚠️ Error:</span>
+                <div className="p-4 rounded-2xl bg-rose-900/30 border border-rose-500/40 text-rose-300 text-sm font-medium flex items-start gap-3">
+                  <span className="text-lg shrink-0">⚠️</span>
                   <span>{error}</span>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                {/* Username Input */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-foreground">Usuario / Username</label>
-                  <div className="relative">
+              {/* Formulario */}
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {/* Username */}
+                <div className="space-y-2.5">
+                  <label className="text-sm font-bold text-purple-200 block flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-purple-400" /> Usuario o Email
+                  </label>
+                  <div className="relative group">
                     <input
                       {...register('username')}
                       type="text"
-                      placeholder="Ej: admin o vendedor"
-                      className="w-full h-12 px-4 rounded-2xl bg-background/70 border border-border/60 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                      placeholder="Ej: admin, vendedor..."
+                      autoComplete="username"
+                      className="w-full h-14 pl-5 pr-5 rounded-2xl bg-purple-950/60 border border-purple-500/40 text-white text-base placeholder:text-purple-300/30 focus:outline-none focus:border-purple-400 focus:shadow-[0_0_25px_rgba(168,85,247,0.3)] transition-all duration-300"
                     />
+                    <div className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 border-2 border-purple-400/50 blur-sm" />
                   </div>
                   {errors.username && (
-                    <p className="text-[11px] font-bold text-rose-400">{errors.username.message}</p>
+                    <p className="text-sm font-bold text-rose-400">{errors.username.message}</p>
                   )}
                 </div>
 
-                {/* Password Input */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-foreground">Contraseña</label>
-                    <a href="#" className="text-[11px] font-semibold text-primary hover:underline" onClick={(e) => { e.preventDefault(); alert('Usa el botón de prueba rápida "Admin" o "Vendedor" arriba') }}>
-                      ¿Olvidaste tu contraseña?
-                    </a>
+                {/* Password */}
+                <div className="space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-bold text-purple-200 flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-purple-400" /> Contraseña
+                    </label>
+                    <button type="button" onClick={() => alert('Usa los accesos rápidos de demostración')}
+                      className="text-xs text-purple-400 hover:text-purple-300 transition-colors underline underline-offset-2">
+                      ¿Olvidaste?
+                    </button>
                   </div>
-                  <div className="relative">
+                  <div className="relative group">
                     <input
                       {...register('password')}
                       type={showPw ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      className="w-full h-12 pl-4 pr-11 rounded-2xl bg-background/70 border border-border/60 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                      placeholder="••••••••••"
+                      autoComplete="current-password"
+                      className="w-full h-14 pl-5 pr-14 rounded-2xl bg-purple-950/60 border border-purple-500/40 text-white text-base placeholder:text-purple-300/30 focus:outline-none focus:border-purple-400 focus:shadow-[0_0_25px_rgba(168,85,247,0.3)] transition-all duration-300"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPw(!showPw)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 hover:text-purple-200 transition-colors"
                     >
-                      {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPw ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
+                    <div className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 border-2 border-purple-400/50 blur-sm" />
                   </div>
                   {errors.password && (
-                    <p className="text-[11px] font-bold text-rose-400">{errors.password.message}</p>
+                    <p className="text-sm font-bold text-rose-400">{errors.password.message}</p>
                   )}
                 </div>
 
-                {/* Submit Button */}
-                <Button
+                {/* Submit */}
+                <button
                   type="submit"
                   disabled={isLoading}
-                  className="btn-glow w-full h-13 text-base font-extrabold rounded-2xl transition-all duration-300"
+                  className="relative w-full h-14 rounded-2xl font-black text-white text-base flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed overflow-hidden group"
+                  style={{
+                    background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
+                    boxShadow: '0 0 30px rgba(124,58,237,0.4)',
+                  }}
                 >
+                  <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" /> Verificando JWT...
-                    </span>
+                    <><Loader2 className="w-5 h-5 animate-spin" /> Verificando...</>
                   ) : (
-                    'Ingresar a la Plataforma'
+                    <>Ingresar a la Plataforma <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>
                   )}
-                </Button>
+                </button>
               </form>
-            </div>
 
-            {/* Bottom Register CTA */}
-            <div className="pt-8 text-center border-t border-border/30 mt-6">
-              <p className="text-xs text-muted-foreground">
-                ¿Aún no tienes una cuenta de empresa?{' '}
-                <Link to="/register" className="font-extrabold text-primary hover:underline ml-1">
-                  Regístrate gratis aquí
+              {/* Accesos rápidos */}
+              <div className="space-y-3 pt-2 border-t border-purple-500/20">
+                <p className="text-xs font-bold text-purple-400/70 uppercase tracking-widest text-center flex items-center justify-center gap-2">
+                  <Sparkles className="w-3 h-3" /> Acceso rápido de demostración
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => fillDemo('admin')}
+                    className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-amber-900/30 border border-amber-500/30 text-amber-300 text-sm font-bold hover:bg-amber-900/50 hover:scale-[1.02] transition-all duration-300 hover:shadow-[0_0_20px_rgba(251,191,36,0.2)]"
+                  >
+                    <Crown className="w-4 h-4" /> Admin
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fillDemo('vendedor')}
+                    className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl bg-purple-900/30 border border-purple-500/30 text-purple-300 text-sm font-bold hover:bg-purple-900/50 hover:scale-[1.02] transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+                  >
+                    <UserCheck className="w-4 h-4" /> Vendedor
+                  </button>
+                </div>
+              </div>
+
+              {/* Registro */}
+              <p className="text-center text-sm text-purple-300/60">
+                ¿Sin cuenta aún?{' '}
+                <Link to="/register" className="font-black text-purple-400 hover:text-purple-300 transition-colors underline underline-offset-2">
+                  Regístrate gratis
                 </Link>
               </p>
             </div>
-
           </div>
-
         </div>
       </div>
 
+      {/* ─── KEYFRAMES PARA ANIMACIÓN DE PARTÍCULAS ────────────────── */}
+      <style>{`
+        @keyframes floatParticle {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px) scale(1.2); }
+        }
+      `}</style>
     </div>
   )
 }

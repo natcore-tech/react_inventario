@@ -16,7 +16,12 @@ import { ErrorBoundary } from '@/presentation/components/ErrorBoundary'
 import HomePage from '../pages/public/HomePage'
 import FeaturesPage from '../pages/public/FeaturesPage'
 import AboutPage from '../pages/public/AboutPage'
-import DocsPage from '../pages/public/DocsPage'
+import OrdersPage from '../pages/public/OrdersPage'
+import LaptopsPage from '../pages/public/LaptopsPage'
+import VRPage from '../pages/public/VRPage'
+import AudioPage from '../pages/public/AudioPage'
+import GamingPage from '../pages/public/GamingPage'
+import SmartphonesPage from '../pages/public/SmartphonesPage'
 
 // ─── Lazy imports ─────────────────────────────────────────────────────────────
 
@@ -73,24 +78,30 @@ export default function AppRouter() {
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* ── Rutas públicas — PublicLayout con tabs ───────────────── */}
+          {/* ── Rutas públicas — PublicLayout con Navbar Estilo Amazon ───────── */}
           <Route element={<PublicLayout />}>
-            <Route path="/"        element={<HomePage />} />
-            <Route path="/features" element={<FeaturesPage />} />
-            <Route path="/about"    element={<AboutPage />} />
-            <Route path="/docs"     element={<DocsPage />} />
+            <Route path="/"             element={<HomePage />} />
+            <Route path="/features"     element={<FeaturesPage />} />
+            <Route path="/about"        element={<AboutPage />} />
+            <Route path="/orders"       element={<OrdersPage />} />
+            {/* ── Dedicated category pages ── */}
+            <Route path="/laptops"      element={<LaptopsPage />} />
+            <Route path="/vr"           element={<VRPage />} />
+            <Route path="/audio"        element={<AudioPage />} />
+            <Route path="/gaming"       element={<GamingPage />} />
+            <Route path="/cyberwear"    element={<SmartphonesPage />} />
           </Route>
 
           {/* ── Auth (sin layout) ──────────────────────────────────────── */}
           <Route path="/login"    element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* ── Rutas Privadas del Inventario (con AppShell y ProtectedRoute) ── */}
+          {/* ── Rutas Privadas del Inventario y Gestión (Exclusivo Staff) ── */}
           <Route element={<AppShell />}>
 
             {/* Dashboard Principal */}
             <Route path="/dashboard" element={
-              <ProtectedRoute>
+              <ProtectedRoute requireStaff>
                 <DashboardRouter />
               </ProtectedRoute>
             } />

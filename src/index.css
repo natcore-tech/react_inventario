@@ -129,9 +129,21 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
     font-feature-settings: "cv11", "ss01", "ss03";
     transition: background-color 0.5s ease, color 0.3s ease;
     overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: hsl(var(--foreground));
+  }
+
+  button, input, select, textarea {
+    font-size: 1rem;
   }
 
   /* Custom scrollbar */
@@ -675,4 +687,47 @@
     box-shadow: 0 0 0 2px hsl(var(--primary)/0.18), 0 0 12px hsl(var(--primary)/0.1) !important;
     outline: none !important;
   }
+
+  /* ─── Cyber-Noir Morado Neón Specific Utilities ────────────────────────────── */
+  .glow-purple-neon {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(147, 51, 234, 0.2);
+  }
+
+  .glow-purple-neon-lg {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.55), 0 0 70px rgba(168, 85, 247, 0.25);
+  }
+
+  .border-neon-purple {
+    border: 1px solid rgba(168, 85, 247, 0.45);
+  }
+
+  .border-neon-purple-strong {
+    border: 1.5px solid rgba(192, 132, 252, 0.75);
+  }
+
+  .text-neon-glow {
+    text-shadow: 0 0 16px rgba(168, 85, 247, 0.8), 0 0 32px rgba(147, 51, 234, 0.4);
+  }
+
+  .glass-cyber-card {
+    background: rgba(10, 0, 18, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .glass-cyber-card:hover {
+    border-color: rgba(192, 132, 252, 0.6);
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.35);
+    transform: translateY(-2px);
+  }
+
+  .badge-neon-purple {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #E9D5FF;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);
+  }
 }
+

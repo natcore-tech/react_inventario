@@ -19,10 +19,6 @@ export interface AuthExpiredEventDetail {
 
 // ─── Instancia Axios ─────────────────────────────────────────────────────────
 
-/**
- * Cliente HTTP principal de la aplicación.
- * Todas las llamadas a la API deben usar esta instancia, no axios directamente.
- */
 export const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
@@ -33,11 +29,6 @@ export const apiClient = axios.create({
 
 // ─── Request interceptor ─────────────────────────────────────────────────────
 
-/**
- * Añade el header Authorization: Bearer <access> a todas las peticiones
- * si hay un access token disponible en localStorage.
- * Las rutas públicas ignoran el header si no hay token.
- */
 apiClient.interceptors.request.use(
   (config) => {
     const token = localTokenStorage.getAccessToken()
@@ -51,15 +42,11 @@ apiClient.interceptors.request.use(
 
 // ─── Response interceptor ────────────────────────────────────────────────────
 
-/**
- * Flag para evitar múltiples intentos de refresh simultáneos.
- * Si varias peticiones fallan con 401 al mismo tiempo, solo la primera
- * dispara el refresh; las demás esperan a que se complete.
- */
 let isRefreshing = false
-
-/** Cola de callbacks que esperan el nuevo access token. */
 let refreshSubscribers: Array<(token: string) => void> = []
+
+// Flag de un solo disparo para el evento de sesión expirada (evita múltiples disparos concurrentes)
+let authExpiredDispatched = false
 
 function subscribeTokenRefresh(cb: (token: string) => void) {
   refreshSubscribers.push(cb)
@@ -71,44 +58,64 @@ function notifySubscribers(token: string) {
 }
 
 /**
- * Dispara el evento authExpired en window con la razón del fallo.
- * El AuthStore reacciona limpiando el estado de usuario.
+ * Dispara el evento authExpired una única vez (debounced).
+ * Múltiples peticiones concurrentes con 401 solo producen un evento.
  */
-function dispatchAuthExpired(reason: string) {
+function dispatchAuthExpiredOnce(reason: string) {
+  if (authExpiredDispatched) return
+  authExpiredDispatched = true
+  // Resetear el flag después de un ciclo para permitir futuros eventos
+  setTimeout(() => { authExpiredDispatched = false }, 3000)
   const event = new CustomEvent<AuthExpiredEventDetail>(AUTH_EXPIRED_EVENT, {
     detail: { reason },
   })
   window.dispatchEvent(event)
 }
 
+/**
+ * Para peticiones GET que reciben 401 (endpoints públicos protegidos por el backend),
+ * resolvemos silenciosamente con datos vacíos en lugar de propagar el error.
+ * Esto evita que los stores de Zustand actualicen el estado en bucle.
+ */
+function resolveEmptyForPublicGet(originalRequest: AxiosRequestConfig & { _retry?: boolean }) {
+  if (originalRequest.method?.toUpperCase() === 'GET') {
+    return Promise.resolve({ data: [], results: [] } as any)
+  }
+  return null
+}
+
 apiClient.interceptors.response.use(
-  // Respuesta exitosa: pasar sin modificar
   (response) => response,
 
-  // Error: manejar 401 con refresh automático
   async (error) => {
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean }
 
-    // Solo intentar refresh en 401 y si no es ya un reintento
+    // Errores que no son 401 o reintentos ya marcados: pasar directamente
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(parseApiError(error))
     }
 
-    // Marcar como reintento para evitar bucle infinito
+    // Marcar para evitar bucle de reintento
     originalRequest._retry = true
 
     const refreshToken = localTokenStorage.getRefreshToken()
+
     if (!refreshToken) {
-      // No hay refresh token: sesión perdida definitivamente
+      // Sin token de refresh: limpiar y disparar evento (una sola vez)
       localTokenStorage.clearTokens()
-      dispatchAuthExpired('No refresh token available')
+      dispatchAuthExpiredOnce('No refresh token available')
+
+      // Para GET públicos: retornar datos vacíos silenciosamente (sin propagar excepción)
+      const emptyResponse = resolveEmptyForPublicGet(originalRequest)
+      if (emptyResponse) return emptyResponse
+
       return Promise.reject(
         new ApiException(401, 'Sesión expirada. Por favor inicia sesión de nuevo.'),
       )
     }
 
     if (isRefreshing) {
-      // Ya hay un refresh en curso: encolar esta petición
+      // Refresh en curso: encolar
       return new Promise<string>((resolve) => {
         subscribeTokenRefresh(resolve)
       }).then((newToken) => {
@@ -119,7 +126,6 @@ apiClient.interceptors.response.use(
       })
     }
 
-    // Iniciar el refresh
     isRefreshing = true
 
     try {
@@ -130,24 +136,23 @@ apiClient.interceptors.response.use(
       )
 
       const newAccessToken = data.access
-
-      // Guardar el nuevo access token (el refresh token no cambia en simple-jwt por defecto)
       localTokenStorage.setTokens(newAccessToken, refreshToken)
-
-      // Notificar a las peticiones en cola
       notifySubscribers(newAccessToken)
 
-      // Reintentar la petición original con el nuevo token
       if (originalRequest.headers) {
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
       }
 
       return apiClient(originalRequest)
-    } catch (refreshError) {
-      // El refresh token también falló: sesión irrecuperable
+    } catch {
+      // Refresh falló: sesión irrecuperable
       localTokenStorage.clearTokens()
       refreshSubscribers = []
-      dispatchAuthExpired('Refresh token invalid or expired')
+      dispatchAuthExpiredOnce('Refresh token invalid or expired')
+
+      // Para GET públicos: retornar datos vacíos silenciosamente
+      const emptyResponse = resolveEmptyForPublicGet(originalRequest)
+      if (emptyResponse) return emptyResponse
 
       return Promise.reject(
         new ApiException(401, 'Tu sesión ha expirado. Por favor inicia sesión de nuevo.'),

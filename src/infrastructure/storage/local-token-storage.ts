@@ -29,12 +29,14 @@ export const localTokenStorage = {
   setTokens(access: string, refresh: string): void {
     localStorage.setItem(KEYS.ACCESS, access)
     localStorage.setItem(KEYS.REFRESH, refresh)
+    localStorage.setItem('token', access)
   },
 
   /** Elimina ambos tokens (logout o expiración de sesión). */
   clearTokens(): void {
     localStorage.removeItem(KEYS.ACCESS)
     localStorage.removeItem(KEYS.REFRESH)
+    localStorage.removeItem('token')
   },
 
   /** Devuelve solo el access token, o null si no existe. */

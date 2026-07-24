@@ -1,689 +1,932 @@
-// src/presentation/pages/public/HomePage.tsx
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  ArrowRight, Package, Shield, TrendingUp, Zap,
-  CheckCircle2, Boxes, Receipt, Bell,
-  ChevronRight, Star, Sparkles, Barcode, HelpCircle,
-  Check, X, ChevronDown,
-} from 'lucide-react'
+import { audioService } from '@/presentation/utils/audio.service'
 import { Button } from '@/presentation/components/ui/button'
-import { useReveal } from '@/presentation/hooks/useReveal'
+import {
+  ArrowRight,
+  BadgeCheck,
+  Gauge,
+  Gamepad2,
+  Glasses,
+  Headphones,
+  Layers3,
+  Laptop2,
+  Package2,
+  Search,
+  ShieldCheck,
+  TrendingUp,
+  Truck,
+  Users,
+  Volume2,
+  Zap,
+  Star,
+  CheckCircle2,
+  Sparkles,
+  BarChart3,
+  Globe2,
+  Cpu,
+  HelpCircle,
+  ChevronDown,
+  Building,
+  Briefcase,
+  Award,
+  Calendar,
+  Gift,
+  Rocket,
+  Target,
+  FileText,
+  Cloud,
+  Database,
+  UserCheck,
+  ShoppingBag,
+  CreditCard,
+  PenTool,
+  Compass,
+} from 'lucide-react'
 
-// ─── Animated counter ─────────────────────────────────────────────────────────
-function useCounter(target: number, duration = 1800) {
-  const [value, setValue] = useState(0)
-  const started = useRef(false)
-  const ref = useRef<HTMLSpanElement>(null)
+// URLs para imágenes de fondo y cards
+const BACKGROUND_IMAGES = [
+  'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1920&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1920&auto=format&fit=crop',
+]
 
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true
-        const start = performance.now()
-        const tick = (now: number) => {
-          const p = Math.min((now - start) / duration, 1)
-          const ease = 1 - Math.pow(1 - p, 3)
-          setValue(Math.floor(ease * target))
-          if (p < 1) requestAnimationFrame(tick)
-          else setValue(target)
-        }
-        requestAnimationFrame(tick)
-      }
-    }, { threshold: 0.5 })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [target, duration])
+// Módulos principales (más detallados)
+const MODULES = [
+  {
+    title: 'Catálogo por pestañas',
+    description: 'Cada categoría abre una ruta dedicada para evitar contenido mezclado en una sola pantalla.',
+    icon: Layers3,
+    badge: 'Organización',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop',
+  },
+  {
+    title: 'Sesión obligatoria',
+    description: 'El carrito y el checkout sólo están disponibles cuando existe un token activo en el navegador.',
+    icon: ShieldCheck,
+    badge: 'Seguridad JWT',
+    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=600&auto=format&fit=crop',
+  },
+  {
+    title: 'Tipografía amplia',
+    description: 'La interfaz prioriza contraste alto, tamaños grandes y bloques generosos para lectura cómoda.',
+    icon: Gauge,
+    badge: 'UI Accesible',
+    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=600&auto=format&fit=crop',
+  },
+  {
+    title: 'Despacho rápido',
+    description: 'Se visualiza claramente la sucursal activa, impuestos y disponibilidad real por bodega.',
+    icon: Truck,
+    badge: 'Logística',
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=600&auto=format&fit=crop',
+  },
+  {
+    title: 'Reportes en tiempo real',
+    description: 'Dashboard interactivo con métricas de ventas, rotación de inventario y márgenes.',
+    icon: BarChart3,
+    badge: 'Analítica',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop',
+  },
+  {
+    title: 'Multi‑moneda y fiscalización',
+    description: 'Soporte para múltiples divisas y cálculo automático de impuestos regionales.',
+    icon: Globe2,
+    badge: 'Cumplimiento',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=600&auto=format&fit=crop',
+  },
+]
 
-  return { ref, value }
-}
+// Rutas de categorías (con imágenes)
+const ROUTES = [
+  { label: 'Laptops', path: '/laptops', icon: Laptop2, image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?q=80&w=1200&auto=format&fit=crop', count: '142 Modelos' },
+  { label: 'Realidad Virtual', path: '/vr', icon: Glasses, image: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?q=80&w=1200&auto=format&fit=crop', count: '38 Equipos' },
+  { label: 'Audio & Sonido', path: '/audio', icon: Headphones, image: 'https://images.unsplash.com/photo-1518441902117-f0f5e5c0b9f7?q=80&w=1200&auto=format&fit=crop', count: '94 Dispositivos' },
+  { label: 'Gaming', path: '/gaming', icon: Gamepad2, image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1200&auto=format&fit=crop', count: '210 Accesorios' },
+]
 
-// ─── Particle Grid Background ─────────────────────────────────────────────────
-function ParticleGrid() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <div className="absolute inset-0 dot-pattern opacity-25" />
-      {[...Array(20)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute w-1.5 h-1.5 rounded-full bg-primary/70 animate-ping-slow"
-          style={{
-            left: `${4 + (i % 5) * 22}%`,
-            top: `${8 + Math.floor(i / 5) * 22}%`,
-            animationDelay: `${i * 0.3}s`,
-            animationDuration: `${3 + (i % 3) * 0.8}s`,
-          }}
-        />
-      ))}
-      <div className="absolute -top-56 -left-40 w-[750px] h-[750px] rounded-full bg-primary/14 blur-[130px]" />
-      <div className="absolute top-1/3 -right-56 w-[600px] h-[600px] rounded-full bg-purple-600/12 blur-[120px]" />
-      <div className="absolute -bottom-32 left-1/3 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[100px]" />
-    </div>
-  )
-}
+// Estadísticas
+const STATS_CARDS = [
+  { label: 'Transacciones mensuales', value: '$1.4M+', change: '+18.2%', icon: BarChart3 },
+  { label: 'Empresas activas', value: '450+', change: '+25 este mes', icon: Users },
+  { label: 'Tiempo de respuesta', value: '14ms', change: 'Ultra rápido', icon: Zap },
+  { label: 'Precisión de stock', value: '99.99%', change: 'Sin mermas', icon: CheckCircle2 },
+]
 
-// ─── Float Badge ──────────────────────────────────────────────────────────────
-interface FloatBadgeProps {
+// Testimonios
+const TESTIMONIALS = [
+  {
+    name: 'Carlos Mendoza',
+    role: 'Director de Operaciones, TechStore Latam',
+    comment: 'Implementar este ERP cambió por completo nuestra logística de inventario. La velocidad de sincronización en tiendas físicas es brutal.',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop',
+  },
+  {
+    name: 'Sofía Valenzuela',
+    role: 'Gerente E-commerce, Nexus Gamer',
+    comment: 'Las rutas dedicadas y el sistema de login seguro nos han evitado fraudes en carritos de alto valor. Sencillamente una obra maestra.',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=200&auto=format&fit=crop',
+  },
+  {
+    name: 'Ricardo Fernández',
+    role: 'CEO, LogiTech Solutions',
+    comment: 'La capacidad de manejar múltiples bodegas con visibilidad en tiempo real nos permitió reducir costos de almacenamiento en un 30%.',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+  },
+]
+
+// FAQ
+const FAQS = [
+  { q: '¿Cómo funciona la autenticación obligatoria?', a: 'El sistema valida un token JWT cifrado antes de permitir cualquier operación de checkout, protegiendo tanto al cliente como al inventario central.' },
+  { q: '¿Puedo integrar múltiples bodegas físicas?', a: 'Sí, el software permite administrar stock descentralizado por sucursal con cálculos automáticos de impuestos locales.' },
+  { q: '¿Se requiere instalación previa en PC?', a: 'No, es 100% nativo en la nube accesible desde cualquier navegador moderno con rendimiento optimizado.' },
+  { q: '¿Qué tipo de soporte ofrecen?', a: 'Contamos con un equipo de ingenieros disponible 24/7 vía chat, correo y teléfono para resolver cualquier incidencia.' },
+  { q: '¿Es posible personalizar el sistema?', a: 'Sí, ofrecemos módulos adicionales y personalización de flujos de trabajo según las necesidades de tu negocio.' },
+]
+
+// Marcas (logos)
+const BRANDS = [
+  { name: 'TechCorp', icon: Building },
+  { name: 'InnovaSoft', icon: Briefcase },
+  { name: 'GlobalTrade', icon: Globe2 },
+  { name: 'SecureNet', icon: ShieldCheck },
+  { name: 'DataFlow', icon: Database },
+  { name: 'CloudSync', icon: Cloud },
+  { name: 'Figma', icon: PenTool },
+  { name: 'Chrome', icon: Compass },
+]
+
+// Pasos
+const STEPS = [
+  { icon: UserCheck, title: 'Regístrate', desc: 'Crea tu cuenta en menos de 2 minutos con tu correo empresarial.' },
+  { icon: ShoppingBag, title: 'Configura tu catálogo', desc: 'Carga tus productos, precios y stock inicial de forma masiva.' },
+  { icon: CreditCard, title: 'Conecta pasarelas de pago', desc: 'Vincula tu cuenta de Stripe, PayPal o Mercado Pago.' },
+  { icon: Rocket, title: '¡Lanza tu tienda!', desc: 'Publica tu catálogo y empieza a recibir pedidos en segundos.' },
+]
+
+// Blog
+const BLOG_POSTS = [
+  {
+    title: 'Cómo reducir el tiempo de preparación de pedidos en un 40%',
+    excerpt: 'Descubre las técnicas de picking y organización de bodega que están revolucionando la logística en PyMEs.',
+    date: '15 de junio, 2026',
+    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop',
+    category: 'Logística',
+  },
+  {
+    title: 'Nueva integración con Mercado Pago: pagos más ágiles',
+    excerpt: 'Nuestro sistema ahora se conecta nativamente con Mercado Pago, reduciendo la fricción en el checkout.',
+    date: '10 de junio, 2026',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200&auto=format&fit=crop',
+    category: 'Pagos',
+  },
+  {
+    title: '5 errores comunes en la gestión de inventario y cómo evitarlos',
+    excerpt: 'Aprende de los fallos más frecuentes que llevan a sobrestock o quiebres de stock y cómo solucionarlos.',
+    date: '5 de junio, 2026',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f5f6?q=80&w=1200&auto=format&fit=crop',
+    category: 'Consejos',
+  },
+]
+
+// Planes
+const PRICING_PLANS = [
+  {
+    name: 'Básico',
+    price: '$29',
+    period: '/mes',
+    description: 'Ideal para emprendedores y pequeñas tiendas.',
+    features: ['Hasta 500 productos', '1 bodega', 'Reportes básicos', 'Soporte por email'],
+    buttonText: 'Comenzar gratis',
+    popular: false,
+  },
+  {
+    name: 'Profesional',
+    price: '$79',
+    period: '/mes',
+    description: 'Perfecto para negocios en crecimiento.',
+    features: ['Hasta 5,000 productos', 'Hasta 5 bodegas', 'Dashboard avanzado', 'Soporte 24/7', 'Integración con POS'],
+    buttonText: 'Probar 14 días',
+    popular: true,
+  },
+  {
+    name: 'Empresarial',
+    price: 'Personalizado',
+    period: '',
+    description: 'Soluciones a medida para grandes corporaciones.',
+    features: ['Productos ilimitados', 'Bodegas ilimitadas', 'Analítica predictiva', 'Soporte dedicado', 'API completa'],
+    buttonText: 'Contactar ventas',
+    popular: false,
+  },
+]
+
+// Componente Badge flotante
+function FloatBadge({
+  icon: Icon,
+  label,
+  value,
+  valueClass = 'text-purple-400',
+}: {
   icon: React.ComponentType<{ className?: string }>
-  label: string; value: string; valueClass?: string; delay?: string
-}
-function FloatBadge({ icon: Icon, label, value, valueClass = 'text-primary', delay = '' }: FloatBadgeProps) {
+  label: string
+  value: string
+  valueClass?: string
+}) {
   return (
-    <div className={`glass-card flex items-center gap-3.5 border-primary/30 bg-card/90 px-4 py-3 shadow-2xl backdrop-blur-2xl animate-float-badge ${delay}`}>
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/35 bg-primary/15 shadow-inner">
-        <Icon className="h-4.5 w-4.5 text-primary" />
+    <div className="flex items-center gap-3 border border-white/10 bg-[#0A0510]/90 px-3.5 py-2.5 shadow-xl backdrop-blur-md rounded-xl transition-transform hover:scale-105 duration-300">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-purple-500/25 bg-purple-500/10">
+        <Icon className="h-4 w-4 text-purple-400" />
       </div>
       <div>
-        <p className="mb-0.5 text-[10px] font-medium leading-none text-muted-foreground uppercase tracking-wider">{label}</p>
-        <p className={`text-xs font-black ${valueClass}`}>{value}</p>
+        <p className="mb-0.5 text-[10px] leading-none text-purple-200/60 uppercase tracking-wider">{label}</p>
+        <p className={`text-xs font-extrabold ${valueClass}`}>{value}</p>
       </div>
     </div>
   )
 }
 
-// ─── FAQ Accordion Item ───────────────────────────────────────────────────────
-function FAQItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div className="glass-card overflow-hidden border-border/50 transition-all duration-300">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-5 text-left font-bold text-sm text-foreground hover:text-primary transition-colors"
-      >
-        <span className="flex items-center gap-3">
-          <HelpCircle className="h-4 w-4 text-primary shrink-0" />
-          {q}
-        </span>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${open ? 'rotate-180 text-primary' : ''}`} />
-      </button>
-      {open && (
-        <div className="px-5 pb-5 pt-0 text-xs text-muted-foreground leading-relaxed border-t border-border/30 animate-fade-in">
-          {a}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Main Component ────────────────────────────────────────────────────────────
 export default function HomePage() {
   const orb1 = useRef<HTMLDivElement>(null)
   const orb2 = useRef<HTMLDivElement>(null)
+  const [currentBgIndex, setCurrentBgIndex] = useState(0)
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [counters, setCounters] = useState({ users: 0, products: 0, orders: 0, satisfaction: 0 })
+  const counterRef = useRef<HTMLDivElement>(null)
+  const [showScrollTop, setShowScrollTop] = useState(false)
 
   useEffect(() => {
+    const bgInterval = setInterval(() => {
+      setCurrentBgIndex((prevIndex) => (prevIndex + 1) % BACKGROUND_IMAGES.length)
+    }, 5000)
+
     const onScroll = () => {
       const y = window.scrollY
       if (orb1.current) orb1.current.style.transform = `translateY(${y * 0.12}px)`
       if (orb2.current) orb2.current.style.transform = `translateY(${y * -0.08}px)`
+      setShowScrollTop(y > 600)
     }
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          animateCounter('users', 1250, 0)
+          animateCounter('products', 28400, 0)
+          animateCounter('orders', 3840, 0)
+          animateCounter('satisfaction', 98, 0)
+        }
+      },
+      { threshold: 0.5 }
+    )
+    if (counterRef.current) observer.observe(counterRef.current)
+
+    return () => {
+      clearInterval(bgInterval)
+      window.removeEventListener('scroll', onScroll)
+      observer.disconnect()
+    }
   }, [])
 
-  const statsRef   = useReveal(0.1)
-  const bentoRef   = useReveal(0.05)
-  const tabsRef    = useReveal(0.05)
-  const compareRef = useReveal(0.05)
-  const faqRef     = useReveal(0.05)
-  const ctaRef     = useReveal(0.1)
+  const animateCounter = (key: keyof typeof counters, target: number, current: number) => {
+    if (current >= target) return
+    const step = Math.ceil(target / 80)
+    const next = Math.min(current + step, target)
+    setCounters(prev => ({ ...prev, [key]: next }))
+    requestAnimationFrame(() => animateCounter(key, target, next))
+  }
 
-  const c1 = useCounter(1482)
-  const c2 = useCounter(500000)
-  const c3 = useCounter(78)
-  const c4 = useCounter(99)
-
-  const [activeTab, setActiveTab] = useState(0)
-
-  const FEATURE_TABS = [
-    {
-      id: 'multi',
-      title: 'Control Multi-Bodega & Sucursales',
-      badge: 'Almacenes Físicos',
-      desc: 'Centraliza el control de tus inventarios distribuidos en múltiples instalaciones, depósitos o sucursales comerciales. Sincroniza existencias en tiempo real, gestiona solicitudes de traslado entre bodegas con trazabilidad de despacho y recepción, y define ubicaciones físicas detalladas por pasillo, estante y casilla para optimizar el picking.',
-      bullets: [
-        'Transferencias inmediatas con estado En Tránsito y Recepción Confirmada',
-        'Zonificación por Pasillo, Estante y Nivel de almacenamiento',
-        'Límites de stock mínimo y máximo personalizados por cada sucursal',
-        'Valorización en tiempo real por depósito según costo promedio',
-        'Alertas de quiebre de stock diferenciadas por tienda física',
-      ],
-      codeSample: `GET /api/bodegas/stock-global/\n{\n  "bodega_principal": { "skus": 1420, "valor_total": "$48,920.00" },\n  "sucursal_norte": { "skus": 850, "valor_total": "$22,140.00" }\n}`,
-    },
-    {
-      id: 'pos',
-      title: 'Punto de Venta POS Ultrarrápido',
-      badge: 'Facturación & Caja',
-      desc: 'Transforma la atención a tus clientes con una terminal de cobro diseñada para máxima velocidad operativa. Compatible con escáneres de código de barras USB/Bluetooth, cobro multimoneda y métodos de pago combinados (Efectivo, Tarjeta, Transferencia). Controla turnos de caja con apertura, arqueo intermedio y cierre con cuadre ciego.',
-      bullets: [
-        'Búsqueda por código de barras, SKU o coincidencia fonética de producto',
-        'Apertura y cierre de caja con reporte de diferencias de efectivo',
-        'Emisión e impresión instantánea de tickets de venta y facturas',
-        'Gestión de descuentos por ítem o por total del carrito con autorización',
-        'Modo contingencia con sincronización diferida de comprobantes',
-      ],
-      codeSample: `POST /api/pos/ventas/\n{\n  "turno_id": 842,\n  "metodo_pago": "EFECTIVO",\n  "total": 145.50,\n  "items": [{ "sku": "PRD-901", "qty": 2 }]\n}`,
-    },
-    {
-      id: 'series',
-      title: 'Números de Serie & Auditoría Total',
-      badge: 'Trazabilidad Unitaria',
-      desc: 'Supervisa productos de alto valor o con garantía mediante seguimiento unitario por número de serie único. Registra el historial inmutable de cada ítem desde la compra al proveedor hasta la venta final. Realiza ajustes de inventario por merma, rotura o vencimiento obligando a justificar el motivo para auditorías sin fisuras.',
-      bullets: [
-        'Rastreo individual de número de serie desde la orden de compra',
-        'Historial cronológico de cambios de ubicación y responsable',
-        'Kardex valorizado detallado por cada SKU e ítem unitario',
-        'Ajustes de stock con motivo predefinido y aprobación requerida',
-        'Soporte para devoluciones de clientes con reingreso automático',
-      ],
-      codeSample: `GET /api/productos/series/SN-892401/\n{\n  "estado": "VENDIDO",\n  "cliente": "Corporación Andes S.A.",\n  "ticket": "#TK-49120"\n}`,
-    },
-    {
-      id: 'jwt',
-      title: 'Seguridad JWT & Roles DRF (`is_staff`)',
-      badge: 'Permisos & Backend',
-      desc: 'Protección de datos de nivel bancario respaldada por Django REST Framework. El sistema evalúa el campo is_staff en la base de datos para segmentar automáticamente la interfaz: los administradores acceden al panel completo de compras y usuarios, mientras los vendedores son derivados a una consola operativa ágil.',
-      bullets: [
-        'Tokens JWT de corta duración con mecanismo de refresco transparente',
-        'Restricción estricta de endpoints sensibles en el servidor Django',
-        'Gestión dinámica de usuarios y permisos desde la vista privada de admin',
-        'Bitácora inmutable de acciones realizadas por cada operador',
-        'Cierre automático de sesión por inactividad o revocación de token',
-      ],
-      codeSample: `PROFILE RESPONSE:\n{\n  "id": 12,\n  "username": "vendedor_norte",\n  "is_staff": false, // Redirige a Panel Operativo POS\n  "is_active": true\n}`,
-    },
-  ]
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
   return (
-    <div className="space-y-0">
+    <div className="flex min-h-screen flex-col bg-[#090012] selection:bg-purple-500/30 selection:text-white overflow-x-hidden relative">
 
-      {/* ── HERO SECTION WITH BIG BACKGROUND & MOCKUP ── */}
-      <section className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden pt-12 pb-24">
-        <ParticleGrid />
-        <div className="mesh-gradient absolute inset-0 opacity-90" aria-hidden="true" />
+      {/* ========================================== */}
+      {/* FONDO GLOBAL ANIMADO PARA TODA LA PÁGINA   */}
+      {/* ========================================== */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 left-[-10%] w-[50vw] h-[50vw] rounded-full bg-purple-900/10 blur-[150px] animate-[pulse_8s_infinite]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-fuchsia-900/10 blur-[150px] animate-[pulse_10s_infinite_1s]" />
+        <div className="absolute top-[40%] right-[20%] w-[40vw] h-[40vw] rounded-full bg-indigo-900/10 blur-[120px] animate-[pulse_9s_infinite_2s]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48cGF0aCBkPSJNMzAgMzB2MzBtMzAtMzBIMHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxNjgsIDg1LCAyNDcsIDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=')] opacity-50" />
+      </div>      {/* ========================================== */}
+      {/* HERO SECTION – Fondo lleno de vida         */}
+      {/* ========================================== */}
+      <section id="top" className="relative flex min-h-screen items-center overflow-hidden pt-16">
+        {/* Carrusel de imágenes de fondo */}
+        <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+          {BACKGROUND_IMAGES.map((img, index) => (
+            <div
+              key={img}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+                index === currentBgIndex ? 'opacity-50 scale-105' : 'opacity-0 scale-100'
+              }`}
+              style={{ backgroundImage: `url(${img})`, transition: 'opacity 1.5s ease-in-out, transform 8s ease-out' }}
+            />
+          ))}
+        </div>
 
-        {/* Parallax ambient orbs */}
-        <div ref={orb1} aria-hidden="true" className="pointer-events-none absolute -left-40 -top-40 h-[600px] w-[600px] rounded-full bg-primary/16 blur-3xl" />
-        <div ref={orb2} aria-hidden="true" className="pointer-events-none absolute -bottom-24 -right-40 h-[550px] w-[550px] rounded-full bg-purple-600/14 blur-3xl" />
+        {/* Overlays y efectos */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/60 via-[#090012]/90 to-[#090012]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 mix-blend-overlay" aria-hidden="true" />
 
-        <div className="container mx-auto grid grid-cols-1 items-center gap-14 px-4 lg:grid-cols-2 lg:gap-16 lg:px-8 relative z-10">
+        {/* Elementos decorativos (partículas / formas) */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-2/3 left-1/2 w-64 h-64 bg-fuchsia-600/15 rounded-full blur-3xl animate-pulse delay-2000" />
+          {/* Grid sutil */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBkPSJNMjAgMjB2MjBtMjAtMjBIMHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxNjgsIDg1LCAyNDcsIDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=')] opacity-50" />
+        </div>
 
-          {/* Left Column: Hero Copy (EXTREMELY DETAILED & DENSE) */}
-          <div className="animate-slide-up space-y-8">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="section-badge border-primary/40 bg-primary/10">
-                <span className="h-2 w-2 rounded-full bg-primary animate-ping-slow" />
-                Sistema ERP · Django REST + Frontend Moderno 2026
-              </div>
-              <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-muted/40 border border-border/50 rounded-full px-3.5 py-1 backdrop-blur-md">
-                <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                <span className="font-extrabold text-foreground">4.9 / 5.0</span>
-                <span>· Calidad Comercial Garantizada</span>
-              </div>
+        <div ref={orb1} aria-hidden="true" className="pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-purple-600/20 blur-[120px]" />
+        <div ref={orb2} aria-hidden="true" className="pointer-events-none absolute -bottom-24 -right-40 h-[440px] w-[440px] rounded-full bg-violet-500/20 blur-[120px]" />
+
+        <div className="container mx-auto grid grid-cols-1 items-center gap-14 px-4 py-20 lg:grid-cols-2 lg:gap-16 lg:px-8 max-w-[1800px] xl:px-12 relative z-10">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold text-purple-200 backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+              </span>
+              Next-Gen ERP &amp; Inventario Cloud · 2026
             </div>
 
-            <h1 className="text-5xl font-black leading-[1.05] tracking-tight text-balance md:text-6xl xl:text-7xl text-foreground">
-              Gestión de <br />
-              <span className="gradient-text text-glow animate-gradient-x">inventario ERP</span> sin <br />
-              complicaciones
+            <h1 className="text-5xl font-extrabold leading-[1.05] tracking-tight text-white md:text-6xl xl:text-7xl">
+              Control total y <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-300 to-purple-500 animate-pulse">gestión inteligente</span> de stock
             </h1>
 
-            <p className="max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground text-pretty">
-              Plataforma empresarial de alta velocidad para pymes y cadenas comerciales. Automatiza el control absoluto sobre bodegas, almacenes físicos, ventas en punto de venta (POS) y auditorías con sincronización en tiempo real y seguridad respaldada por Django REST.
+            <p className="max-w-lg text-lg leading-relaxed text-purple-100/80 font-medium">
+              Revoluciona la operación de tu PyME. Monitoreo en tiempo real, múltiples bodegas, seguridad avanzada y transacciones ultra rápidas desde cualquier dispositivo.
             </p>
 
-            {/* DENSE FEATURE PARAGRAPH */}
-            <div className="p-4 rounded-2xl bg-card/60 border border-primary/25 backdrop-blur-md space-y-2 max-w-xl">
-              <p className="text-xs font-bold text-foreground flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                ¿Por qué Stock Master es la solución definitiva?
-              </p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Eliminamos por completo los descuadres en planillas de Excel y los costos excesivos de los ERPs tradicionales. Ofrecemos arquitectura ligera en la nube, soporte para números de serie únicos, control de cajas registradoras y enrutamiento inteligente según el rol <code className="text-primary font-mono">is_staff</code> de tus empleados.
-              </p>
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/10">
+              <div className="space-y-1 transform hover:translate-x-1 transition-transform">
+                <p className="text-2xl font-black text-white">+99.9%</p>
+                <p className="text-xs text-purple-300/70 font-medium">Disponibilidad en la nube</p>
+              </div>
+              <div className="space-y-1 transform hover:translate-x-1 transition-transform">
+                <p className="text-2xl font-black text-purple-400">Tiempo Real</p>
+                <p className="text-xs text-purple-300/70 font-medium">Sincronización POS</p>
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/register">
-                <Button size="lg" className="btn-glow h-13 gap-2 px-8 text-base font-extrabold rounded-2xl w-full sm:w-auto">
-                  Crear cuenta gratis ahora
-                  <ArrowRight className="h-4 w-4" />
+            <div className="relative w-full max-w-lg group mt-2">
+              <div className="absolute -inset-1 rounded-[2rem] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-purple-500 opacity-30 blur-lg transition duration-500 group-hover:opacity-60" />
+              <div className="relative flex w-full items-center gap-3 rounded-3xl border border-white/15 bg-[#0A0510]/90 p-2 pl-5 backdrop-blur-xl transition-all focus-within:border-purple-500/50">
+                <Search className="h-6 w-6 text-purple-400/80" />
+                <input
+                  type="text"
+                  placeholder="Busca productos, SKU o marcas..."
+                  className="flex-1 bg-transparent px-2 py-3 text-base font-medium text-white placeholder-purple-200/50 outline-none"
+                />
+                <Button className="h-12 rounded-2xl bg-purple-500 px-6 text-sm font-black text-white shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:bg-purple-400 transition-all hover:scale-105">
+                  Explorar
                 </Button>
-              </Link>
-              <Link to="/features">
-                <Button
-                  variant="outline" size="lg"
-                  className="h-13 gap-2 border-border/70 px-8 text-base rounded-2xl hover:border-primary/50 hover:bg-primary/10 transition-all duration-300 w-full sm:w-auto"
-                >
-                  Explorar todos los módulos
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-
-            {/* Micro Badges Row */}
-            <div className="flex flex-wrap gap-x-6 gap-y-2.5 pt-4 border-t border-border/30">
-              {[
-                'Multi-bodega activo',
-                'Roles Django (is_staff)',
-                'POS ultrarrápido',
-                'Números de serie',
-                'Reportes PDF / Excel',
-              ].map((b) => (
-                <div key={b} className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
-                  {b}
-                </div>
-              ))}
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Large Interactive 3D Showcase */}
-          <div className="animate-slide-left relative delay-200">
-            {/* Floating Badges */}
-            <div className="absolute -left-6 top-8 z-20 animate-float-badge">
-              <FloatBadge icon={TrendingUp} label="Ventas hoy" value="+12.4%" valueClass="text-emerald-400" />
+          <div className="relative lg:pl-10 animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-10 rounded-full bg-purple-500/20 blur-[90px]" />
+
+            <div className="absolute -left-8 top-12 z-20 animate-[bounce_4s_infinite]">
+              <FloatBadge icon={TrendingUp} label="Ventas hoy" value="+12.4%" valueClass="text-purple-400" />
             </div>
-            <div className="absolute -right-4 bottom-24 z-20 animate-float-badge delay-500">
-              <FloatBadge icon={Package} label="Stock bajo" value="3 alertas" valueClass="text-amber-400" />
+            <div className="absolute -right-4 bottom-32 z-20 animate-[bounce_5s_infinite_1s]">
+              <FloatBadge icon={Package2} label="Stock crítico" value="3 alertas" valueClass="text-rose-400" />
             </div>
-            <div className="absolute left-1/2 -top-6 z-20 -translate-x-1/2 animate-float-badge delay-300">
-              <FloatBadge icon={Zap} label="POS Uptime" value="99.9%" valueClass="text-primary" />
+            <div className="absolute left-1/2 -top-6 z-20 -translate-x-1/2 animate-[bounce_4.5s_infinite_0.5s]">
+              <FloatBadge icon={Zap} label="Sincronización POS" value="Activa" />
             </div>
 
-            {/* Main Glass Frame Container */}
-            <div className="relative rounded-3xl overflow-hidden border border-primary/40 bg-card/90 shadow-2xl shadow-purple-950/50 backdrop-blur-2xl animate-float">
-              <div className="flex items-center justify-between px-5 py-3.5 bg-muted/60 border-b border-border/50">
-                <div className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full bg-rose-500/80 hover:opacity-100 transition-opacity" />
-                  <span className="h-3 w-3 rounded-full bg-amber-400/80 hover:opacity-100 transition-opacity" />
-                  <span className="h-3 w-3 rounded-full bg-emerald-400/80 hover:opacity-100 transition-opacity" />
+            <div className="group relative z-10 overflow-hidden rounded-3xl border border-white/15 bg-[#0A0510]/95 shadow-2xl backdrop-blur-2xl transition-transform hover:scale-[1.01] duration-500">
+              <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
+                <span className="h-3 w-3 rounded-full bg-rose-500/80 shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
+                <span className="h-3 w-3 rounded-full bg-amber-500/80 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
+                <span className="h-3 w-3 rounded-full bg-purple-500/80 shadow-[0_0_8px_rgba(168,85,247,0.6)]" />
+                <div className="mx-4 flex flex-1 items-center justify-center gap-2 rounded-full bg-black/50 px-4 py-1.5 text-center font-mono text-[11px] text-purple-200/70 border border-white/5">
+                  <span className="h-2 w-2 rounded-full bg-purple-500 animate-pulse" />
+                  nexus-market.local/dashboard-secure
                 </div>
-                <div className="flex-1 mx-6 max-w-md bg-background/70 rounded-full px-4 py-1.5 text-[11px] font-mono text-muted-foreground flex items-center justify-center gap-2 border border-border/50">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  https://app.stockmaster.live/dashboard
-                </div>
-                <span className="text-[10px] font-bold text-primary bg-primary/15 border border-primary/30 px-3 py-0.5 rounded-full uppercase tracking-wider">
-                  DRF + REACT PRO
+                <span className="rounded-full bg-purple-500/20 px-3 py-1 text-[10px] font-bold text-purple-300 border border-purple-500/30">
+                  Secure v2.6
                 </span>
               </div>
-
-              <div className="relative aspect-[16/10] overflow-hidden bg-background">
-                <img
-                  src="/images/hero_dashboard_preview.png"
-                  alt="Stock Master Consola de Control de Inventario 3D"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-[1.03]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-80" />
-
-                <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3 p-3.5 bg-card/85 backdrop-blur-xl rounded-2xl border border-primary/30 shadow-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/35 flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-primary animate-spin-slow" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-foreground">Sincronización Django REST</p>
-                      <p className="text-[10px] text-muted-foreground">Endpoints JWT & Roles Activos</p>
+              <div className="relative aspect-[16/10] overflow-hidden bg-[#0A0510]">
+                <div className="absolute inset-0 flex flex-col p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="h-7 w-40 rounded-lg bg-white/10 animate-pulse"></div>
+                    <div className="flex gap-2">
+                      <div className="h-7 w-7 rounded-full bg-white/10"></div>
+                      <div className="h-7 w-24 rounded-lg bg-purple-500/20 border border-purple-500/30"></div>
                     </div>
                   </div>
-                  <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/25">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> 100% Online
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="h-20 rounded-xl border border-white/10 bg-white/5 p-3 flex flex-col justify-between">
+                      <div className="h-2 w-8 bg-purple-400/40 rounded"></div>
+                      <div className="h-4 w-12 bg-white/20 rounded"></div>
+                    </div>
+                    <div className="h-20 rounded-xl border border-white/10 bg-white/5 p-3 flex flex-col justify-between">
+                      <div className="h-2 w-8 bg-purple-400/40 rounded"></div>
+                      <div className="h-4 w-12 bg-white/20 rounded"></div>
+                    </div>
+                    <div className="h-20 rounded-xl border border-white/10 bg-white/5 p-3 flex flex-col justify-between">
+                      <div className="h-2 w-8 bg-purple-400/40 rounded"></div>
+                      <div className="h-4 w-12 bg-white/20 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="flex-1 rounded-xl border border-white/10 bg-white/5 relative overflow-hidden flex items-end p-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 to-transparent"></div>
+                    <div className="w-full flex items-end justify-between gap-2 h-16">
+                      <div className="w-1/6 bg-purple-500/40 rounded-t h-[40%] transition-all duration-1000 hover:h-[60%]"></div>
+                      <div className="w-1/6 bg-purple-500/60 rounded-t h-[70%] transition-all duration-1000 hover:h-[85%]"></div>
+                      <div className="w-1/6 bg-purple-500/60 rounded-t h-[55%] transition-all duration-1000 hover:h-[75%]"></div>
+                      <div className="w-1/6 bg-purple-500 rounded-t h-[90%] shadow-[0_0_12px_rgba(168,85,247,0.5)]"></div>
+                      <div className="w-1/6 bg-purple-400/60 rounded-t h-[65%] transition-all duration-1000 hover:h-[80%]"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090012] via-transparent to-transparent opacity-80" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* ESTADÍSTICAS EN TIEMPO REAL                */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-12 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {STATS_CARDS.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-3xl border border-purple-500/20 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-purple-500/40 hover:shadow-[0_10px_30px_rgba(168,85,247,0.15)] group"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-12 w-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                  <stat.icon className="h-6 w-6" />
+                </div>
+                <span className="text-xs font-bold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+                  {stat.change}
+                </span>
+              </div>
+              <p className="text-3xl font-black text-white mb-1 tracking-tight">{stat.value}</p>
+              <p className="text-sm font-medium text-purple-200/60">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* CONTADORES ANIMADOS                        */}
+      {/* ========================================== */}
+      <section ref={counterRef} className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 rounded-[2.5rem] border border-purple-500/20 bg-gradient-to-b from-white/[0.05] to-transparent p-8 backdrop-blur-xl">
+          <div className="text-center">
+            <p className="text-4xl sm:text-5xl font-black text-white">{counters.users.toLocaleString()}+</p>
+            <p className="text-sm text-purple-200/60 mt-1">Usuarios activos</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl sm:text-5xl font-black text-purple-400">{counters.products.toLocaleString()}+</p>
+            <p className="text-sm text-purple-200/60 mt-1">Productos gestionados</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl sm:text-5xl font-black text-white">{counters.orders.toLocaleString()}+</p>
+            <p className="text-sm text-purple-200/60 mt-1">Pedidos procesados</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl sm:text-5xl font-black text-purple-400">{counters.satisfaction}%</p>
+            <p className="text-sm text-purple-200/60 mt-1">Satisfacción cliente</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* MÓDULOS CON IMÁGENES (cards visuales)      */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+              <Gauge className="h-3.5 w-3.5 text-purple-400" /> Arquitectura del Sistema
+            </span>
+            <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight">
+              Bloques amplios, legibles y sin saturación visual
+            </h2>
+          </div>
+          <p className="max-w-2xl text-base font-medium leading-relaxed text-purple-200/65 sm:text-lg">
+            Diseñado bajo los más altos estándares de UI/UX para garantizar velocidad operativa, cero fricciones en la gestión y control absoluto de los flujos comerciales.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {MODULES.map((module) => (
+            <article
+              key={module.title}
+              className="group relative rounded-[2rem] border border-purple-500/20 bg-white/[0.04] overflow-hidden backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-purple-400/50 hover:shadow-[0_20px_40px_rgba(168,85,247,0.2)]"
+            >
+              <div className="relative h-48 overflow-hidden">
+                <img src={module.image} alt={module.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090012] via-transparent to-transparent" />
+              </div>
+              <div className="p-6 relative -mt-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 via-fuchsia-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] group-hover:scale-110 transition-transform duration-300">
+                    <module.icon className="h-7 w-7" />
+                  </div>
+                  <span className="text-[10px] font-bold text-purple-300 bg-purple-500/10 border border-purple-500/30 px-3 py-1 rounded-full uppercase tracking-wider">
+                    {module.badge}
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── STATS BAND WITH DETAILED DESCRIPTIONS ── */}
-      <section className="py-16 border-y border-border/40 bg-card/20 backdrop-blur-md">
-        <div ref={statsRef} className="reveal container mx-auto px-4 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { ref: c1.ref, value: c1.value, suffix: '+',  label: 'Productos Registrados', sub: 'Catálogo activo con SKU e imagen' },
-              { ref: c2.ref, value: c2.value, suffix: '+',  label: 'Transacciones Procesadas', sub: 'Tickets de POS y facturación' },
-              { ref: c3.ref, value: c3.value, suffix: '%',  label: 'Reducción de Mermas', sub: 'Mediante auditoría de kardex' },
-              { ref: c4.ref, value: c4.value, suffix: '.9%',label: 'Uptime del Servidor REST', sub: 'Disponibilidad en la nube 24/7' },
-            ].map(({ ref, value, suffix, label, sub }, i) => (
-              <div key={label} className={`glass-card p-6 text-center space-y-2 reveal delay-${i + 1} hover:border-primary/45 transition-all duration-300`}>
-                <div className="stat-number text-3xl sm:text-4xl">
-                  <span ref={ref}>{value.toLocaleString()}</span>{suffix}
+                <h3 className="text-2xl font-black text-white mb-3 group-hover:text-purple-300 transition-colors">{module.title}</h3>
+                <p className="text-base leading-relaxed text-purple-200/70">{module.description}</p>
+                <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-xs font-bold text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span>Ver documentación técnica</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </div>
-                <p className="text-xs sm:text-sm font-bold text-foreground">{label}</p>
-                <p className="text-[11px] text-muted-foreground leading-snug">{sub}</p>
               </div>
-            ))}
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* ── INTERACTIVE FEATURE TABS WITH DEEP CONTENT ── */}
-      <section className="py-24 border-t border-border/40 relative overflow-hidden">
-        <div ref={tabsRef} className="reveal container mx-auto px-4 lg:px-8 space-y-12">
+      {/* ========================================== */}
+      {/* PROCESO EN 4 PASOS                         */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+            <Target className="h-3.5 w-3.5 text-purple-400" /> Empieza en minutos
+          </span>
+          <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight">Tu tienda lista en 4 pasos</h2>
+          <p className="text-purple-200/65 text-base sm:text-lg">Sin complicaciones, sin código, sin esperas.</p>
+        </div>
 
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="section-badge">Arquitectura & Funcionalidades</span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight">
-              Explora en profundidad los <span className="gradient-text">módulos de la plataforma</span>
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Selecciona una categoría para examinar el funcionamiento técnico, las capacidades operativas y las muestras de integración con nuestra API REST.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {STEPS.map((step, idx) => (
+            <div key={idx} className="relative group rounded-[2rem] border border-purple-500/20 bg-white/[0.04] p-8 backdrop-blur-xl transition-all hover:-translate-y-1 hover:border-purple-500/40">
+              <div className="absolute -top-3 -right-3 bg-purple-500 text-[10px] font-black text-white px-3 py-1 rounded-full">Paso {idx+1}</div>
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-fuchsia-400 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)] mb-6 group-hover:scale-110 transition-transform">
+                <step.icon className="h-8 w-8" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-2">{step.title}</h3>
+              <p className="text-purple-200/70 text-base leading-relaxed">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-          {/* Tab Selector Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {FEATURE_TABS.map((tab, idx) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(idx)}
-                className={`px-5 py-3 rounded-2xl text-xs font-black transition-all duration-300 border ${
-                  activeTab === idx
-                    ? 'border-primary/60 bg-primary/20 text-primary shadow-lg shadow-primary/10'
-                    : 'border-border/50 bg-card/40 text-muted-foreground hover:bg-card hover:text-foreground'
-                }`}
-              >
-                {tab.title.split(' ')[0]} {tab.title.split(' ')[1]}
-              </button>
-            ))}
-          </div>
+      {/* ========================================== */}
+      {/* BANNER INTERACTIVO (automatización)        */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-12 sm:px-6 lg:px-8 relative z-10">
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-purple-500/30 bg-gradient-to-r from-purple-900/30 via-[#120520] to-fuchsia-950/30 p-8 sm:p-12 lg:p-16 backdrop-blur-2xl">
+          <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-purple-500/15 blur-[100px] pointer-events-none" />
+          <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-fuchsia-500/15 blur-[100px] pointer-events-none" />
 
-          {/* Active Tab Detailed View */}
-          <div className="glass-card p-8 lg:p-12 border-primary/35 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7 space-y-6">
-              <span className="text-[10px] font-extrabold text-primary bg-primary/10 border border-primary/25 rounded-full px-3 py-1 uppercase tracking-wider">
-                {FEATURE_TABS[activeTab].badge}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center relative z-10">
+            <div className="space-y-6">
+              <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold text-purple-300">
+                <Sparkles className="h-3.5 w-3.5" /> Automatización Comercial Total
               </span>
-              <h3 className="text-2xl sm:text-3xl font-black text-foreground">
-                {FEATURE_TABS[activeTab].title}
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                {FEATURE_TABS[activeTab].desc}
-              </p>
-
-              <div className="space-y-3 pt-2">
-                {FEATURE_TABS[activeTab].bullets.map((b) => (
-                  <div key={b} className="flex items-start gap-3 text-xs font-semibold text-foreground/90">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <span>{b}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Code / Visual Box */}
-            <div className="lg:col-span-5 relative">
-              <div className="rounded-2xl overflow-hidden border border-border/50 bg-background/80 p-5 space-y-3 font-mono text-xs shadow-xl">
-                <div className="flex items-center justify-between border-b border-border/40 pb-3 text-muted-foreground text-[10px]">
-                  <span>ESTRUCTURA DE DATOS DRF</span>
-                  <span className="text-emerald-400">STATUS 200 OK</span>
-                </div>
-                <pre className="overflow-x-auto text-primary text-[11px] leading-relaxed">
-                  <code>{FEATURE_TABS[activeTab].codeSample}</code>
-                </pre>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── MASSIVE BENTO GRID SECTION (PACKED WITH TEXT) ── */}
-      <section className="py-24 border-t border-border/40">
-        <div className="container mx-auto px-4 lg:px-8 space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="section-badge">Consola Unificada Bento Grid</span>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-foreground tracking-tight">
-              Diseñado para operar con <span className="gradient-text">máxima densidad de datos</span>
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Cada módulo ofrece información completa sin recargar la pantalla. Todo a un clic de distancia.
-            </p>
-          </div>
-
-          <div ref={bentoRef} className="reveal grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            {/* Bento Card 1 (Wide): Multi-Bodega */}
-            <div className="glass-card p-8 md:col-span-2 space-y-6 relative overflow-hidden group">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
-                  <Boxes className="h-6 w-6" />
-                </div>
-                <span className="text-[10px] font-extrabold text-primary bg-primary/10 border border-primary/25 rounded-full px-3 py-1 uppercase tracking-wider">
-                  Módulo Almacén & Traslados
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="text-2xl font-extrabold text-foreground group-hover:text-primary transition-colors">
-                  Control Multi-Bodega & Ubicaciones de Almacenamiento
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Administra múltiples bodegas físicas o centros de distribución. Transfiere productos entre sucursales notificando el estado en tránsito y requiriendo confirmación de recepción para evitar pérdidas de mercadería. Asigna ubicaciones físicas exactas por pasillo, estante y casilla para agilizar el despacho.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                {[
-                  { name: 'Bodega Principal', stock: '1,420 SKUs', status: 'Capacidad 82%' },
-                  { name: 'Sucursal Norte', stock: '850 SKUs', status: 'Capacidad 45%' },
-                  { name: 'Sucursal Sur', stock: '310 SKUs', status: 'Stock Bajo' },
-                ].map(({ name, stock, status }) => (
-                  <div key={name} className="p-3.5 rounded-xl bg-background/60 border border-border/40 space-y-1">
-                    <p className="text-xs font-bold text-foreground">{name}</p>
-                    <p className="text-[11px] font-mono text-primary font-bold">{stock}</p>
-                    <span className="text-[9px] font-semibold text-muted-foreground">{status}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Bento Card 2: POS Terminal */}
-            <div className="glass-card p-8 space-y-6 relative overflow-hidden group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <Receipt className="h-6 w-6" />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-xl font-extrabold text-foreground group-hover:text-emerald-400 transition-colors">
-                  Punto de Venta POS & Cajas
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Terminal de cobro ultrarrápida con arqueo de caja ciego, soporte para lector de código de barras, emisión de comprobantes e historial de turnos cerrados.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold space-y-1">
-                <p className="flex justify-between"><span>Promedio por Ticket:</span> <span>⚡ 8.5 seg</span></p>
-                <p className="text-[10px] text-muted-foreground font-normal">Compatible con impresoras térmicas de 80mm</p>
-              </div>
-            </div>
-
-            {/* Bento Card 3: Security JWT */}
-            <div className="glass-card p-8 space-y-6 relative overflow-hidden group">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
-                <Shield className="h-6 w-6" />
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-xl font-extrabold text-foreground group-hover:text-purple-400 transition-colors">
-                  Seguridad & Roles (`is_staff`)
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Evaluación estricta de credenciales en el servidor Django. Los usuarios de staff acceden al panel completo, mientras los usuarios normales operan en el POS.
-                </p>
-              </div>
-
-              <div className="space-y-2 pt-1">
-                <div className="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/25 px-3 py-1.5 rounded-xl">
-                  is_staff = true → Admin (Auditoría + Compras)
-                </div>
-                <div className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/25 px-3 py-1.5 rounded-xl">
-                  is_staff = false → Operador POS (Ventas)
-                </div>
-              </div>
-            </div>
-
-            {/* Bento Card 4 (Wide): Notifications & Series */}
-            <div className="glass-card p-8 md:col-span-2 space-y-6 relative overflow-hidden group">
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                  <Bell className="h-6 w-6" />
-                </div>
-                <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/25 rounded-full px-3 py-1 uppercase tracking-wider">
-                  Trazabilidad Unitaria
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="text-2xl font-extrabold text-foreground group-hover:text-amber-400 transition-colors">
-                  Alertas de Stock Mínimo & Números de Serie Únicos
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Seguimiento de productos por número de serie inmutable para garantías y trazabilidad de origen. Notificaciones preventivas automáticas antes de agotar existencias en sucursal.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <div className="flex items-center gap-2 text-xs font-semibold text-foreground bg-background/60 border border-border/40 px-3.5 py-2 rounded-xl">
-                  <Barcode className="h-4 w-4 text-primary" /> Serie: #SN-892401-PRO
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/25 px-3.5 py-2 rounded-xl">
-                  <Bell className="h-4 w-4" /> Alerta: Recomprar 15 unidades
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ── COMPARISON MATRIX (STOCK MASTER VS EXCEL / OTROS) ── */}
-      <section className="py-24 border-t border-border/40 bg-card/20 backdrop-blur-md">
-        <div ref={compareRef} className="reveal container mx-auto px-4 lg:px-8 space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="section-badge">Comparativa Comercial</span>
-            <h2 className="text-3xl md:text-5xl font-black text-foreground tracking-tight">
-              ¿Por qué migrar a <span className="gradient-text">Stock Master</span>?
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Compara las capacidades operativas de nuestra plataforma frente a hojas de cálculo tradicionales o sistemas ERP heredados.
-            </p>
-          </div>
-
-          {/* Comparison Table */}
-          <div className="glass-card overflow-hidden border-primary/30">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-border/40 bg-muted/50 text-foreground uppercase tracking-wider text-[10px]">
-                    <th className="p-4 font-black">Característica / Módulo</th>
-                    <th className="p-4 font-black text-primary bg-primary/10 text-center">Stock Master ERP</th>
-                    <th className="p-4 font-black text-muted-foreground text-center">Planillas de Excel</th>
-                    <th className="p-4 font-black text-muted-foreground text-center">ERPs Tradicionales</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/30 text-muted-foreground">
-                  {[
-                    { f: 'Sincronización Multi-Bodega en Tiempo Real', sm: true, ex: false, erp: true },
-                    { f: 'Terminal POS ultrarrápida con cobro en <10s', sm: true, ex: false, erp: false },
-                    { f: 'Rastreo unitario por Número de Serie', sm: true, ex: false, erp: true },
-                    { f: 'Enrutamiento estricto por rol is_staff', sm: true, ex: false, erp: false },
-                    { f: 'Cero costos de servidor o instalación física', sm: true, ex: true, erp: false },
-                    { f: 'Auditoría inmutable de kardex por operador', sm: true, ex: false, erp: true },
-                    { f: 'Interfaz moderna estilo Bento Grid con Modo Oscuro', sm: true, ex: false, erp: false },
-                  ].map(({ f, sm, ex, erp }) => (
-                    <tr key={f} className="hover:bg-card/60 transition-colors">
-                      <td className="p-4 font-bold text-foreground">{f}</td>
-                      <td className="p-4 text-center bg-primary/5">
-                        {sm ? <Check className="h-5 w-5 text-primary mx-auto" /> : <X className="h-5 w-5 text-rose-500 mx-auto" />}
-                      </td>
-                      <td className="p-4 text-center">
-                        {ex ? <Check className="h-5 w-5 text-emerald-400 mx-auto" /> : <X className="h-5 w-5 text-rose-500/60 mx-auto" />}
-                      </td>
-                      <td className="p-4 text-center">
-                        {erp ? <Check className="h-5 w-5 text-emerald-400 mx-auto" /> : <X className="h-5 w-5 text-rose-500/60 mx-auto" />}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FREQUENTLY ASKED QUESTIONS (FAQ) ── */}
-      <section className="py-24 border-t border-border/40">
-        <div ref={faqRef} className="reveal container mx-auto px-4 lg:px-8 space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="section-badge">Preguntas Frecuentes</span>
-            <h2 className="text-3xl md:text-5xl font-black text-foreground tracking-tight">
-              Respuestas claras a tus <span className="gradient-text">dudas técnicas</span>
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Resolvemos tus inquietudes sobre integración, seguridad de datos y uso diario del sistema.
-            </p>
-          </div>
-
-          <div className="max-w-3xl mx-auto space-y-4">
-            <FAQItem
-              q="¿Cómo funciona el control de roles con `is_staff` de Django REST?"
-              a="La base de datos de Django evalúa la propiedad is_staff en la tabla auth_user. Si es verdadera, el usuario recibe acceso a la consola de administración (métricas globales, gestión de usuarios, auditorías y órdenes de compra). Si es falsa, el frontend redirige automáticamente al panel operativo optimizado para ventas POS e inventario básico."
-            />
-            <FAQItem
-              q="¿Puedo gestionar varias sucursales o bodegas físicas simultáneamente?"
-              a="Sí. Stock Master permite registrar múltiples bodegas y sucursales. Puedes consultar el stock independiente de cada lugar, realizar transferencias con estado en tránsito y recibir notificaciones de recepción confirmada."
-            />
-            <FAQItem
-              q="¿Se pueden importar mis datos actuales desde archivos de Excel?"
-              a="Por supuesto. Contamos con herramientas de importación rápida de productos, clientes y proveedores mediante plantillas CSV o Excel para que inicies operaciones en menos de 10 minutos."
-            />
-            <FAQItem
-              q="¿El sistema funciona en dispositivos móviles o tablets?"
-              a="Sí. La plataforma está optimizada con diseño responsivo адапtativo y tecnología Tailwind CSS v4, lo que permite operar la terminal POS o consultar el inventario desde computadoras, tablets o smartphones."
-            />
-            <FAQItem
-              q="¿Qué ocurre si se corta la conexión a Internet temporalmente?"
-              a="La terminal POS cuenta con almacenamiento local diferido. Puedes seguir registrando ventas y comprobantes; una vez restablecida la conexión, los datos se sincronizan automáticamente con el backend Django REST."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA BOTTOM SECTION ── */}
-      <section className="py-24 border-t border-border/40 relative overflow-hidden">
-        <div ref={ctaRef} className="reveal container mx-auto px-4 lg:px-8">
-          <div className="relative rounded-3xl overflow-hidden border border-primary/35 p-8 sm:p-14 text-center space-y-8 bg-card/60 backdrop-blur-2xl">
-            <div className="absolute inset-0 mesh-gradient opacity-80 pointer-events-none" />
-
-            <div className="relative space-y-6 max-w-2xl mx-auto">
-              <span className="section-badge">Prueba Comercial sin Riesgo</span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight leading-tight">
-                Toma el control absoluto de tu inventario <span className="gradient-text text-glow">hoy mismo</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+                Optimiza cada transacción desde el primer clic
               </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Empieza hoy con tu cuenta de prueba. Acceso completo a todos los módulos y switch de tema dual persistente.
+              <p className="text-purple-100/75 text-base sm:text-lg leading-relaxed">
+                Nuestra plataforma conecta inventarios locales con pasarelas de pago cifradas, reduciendo tiempos de espera y evitando discrepancias de stock en tiempo real.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-                <Link to="/register">
-                  <Button size="lg" className="btn-glow h-13 px-10 text-base font-extrabold rounded-2xl w-full sm:w-auto">
-                    Crear cuenta gratis <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link to="/login">
-                  <Button variant="outline" size="lg" className="h-13 px-8 text-base rounded-2xl border-border/70 hover:border-primary/50 hover:bg-primary/10 w-full sm:w-auto">
-                    Iniciar Sesión
-                  </Button>
-                </Link>
+              <div className="space-y-3 pt-2">
+                {['Auditorías de stock automatizadas al instante', 'Reportes de ganancias exportables en formato dinámico', 'Soporte multi-divisa y cálculo de impuestos regionales'].map((feature, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="h-6 w-6 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="h-4 w-4 text-purple-400" />
+                    </div>
+                    <span className="text-sm font-semibold text-white">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md flex flex-col justify-between hover:border-purple-500/40 transition-all group">
+                <Globe2 className="h-8 w-8 text-purple-400 mb-4 group-hover:scale-110 transition-transform" />
+                <div>
+                  <h4 className="text-xl font-bold text-white mb-2">Cloud Multi-Región</h4>
+                  <p className="text-xs text-purple-200/60 leading-relaxed">Infredundancia global para evitar caídas de servicio durante picos de venta masiva.</p>
+                </div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md flex flex-col justify-between hover:border-purple-500/40 transition-all group sm:translate-y-6">
+                <Cpu className="h-8 w-8 text-purple-400 mb-4 group-hover:scale-110 transition-transform" />
+                <div>
+                  <h4 className="text-xl font-bold text-white mb-2">Motor Predictivo</h4>
+                  <p className="text-xs text-purple-200/60 leading-relaxed">Algoritmos inteligentes que sugieren reabastecimiento antes de agotar existencias.</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* ========================================== */}
+      {/* ACCESOS DIRECTOS POR CATEGORÍA             */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-purple-200 mb-3">
+              Catálogo Dinámico
+            </span>
+            <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight">Accesos directos por categoría</h2>
+            <p className="mt-2 text-lg text-purple-200/65">Cada botón abre una vista independiente sin mezclar contenido.</p>
+          </div>
+          <Link to="/features" onClick={() => audioService.playClick()}>
+            <Button className="h-12 rounded-2xl border border-purple-400/30 bg-white/5 px-6 text-sm font-bold text-white hover:bg-white/10 transition-all hover:scale-105">
+              Ver garantías completas
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {ROUTES.map((route) => (
+            <Link
+              key={route.path}
+              to={route.path}
+              onClick={() => audioService.playClick()}
+              className="group overflow-hidden rounded-[2rem] border border-purple-500/20 bg-white/[0.04] p-4 transition-all duration-300 hover:-translate-y-2 hover:border-purple-400/60 hover:bg-white/[0.08] hover:shadow-[0_20px_40px_rgba(168,85,247,0.25)]"
+            >
+              <div className="relative overflow-hidden rounded-[1.5rem] border border-purple-500/20">
+                <img src={route.image} alt={route.label} className="h-60 w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090012] via-[#090012]/40 to-transparent" />
+
+                <div className="absolute left-4 top-4 flex items-center justify-between right-4">
+                  <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3.5 py-1.5 text-xs font-black uppercase tracking-[0.15em] text-white backdrop-blur-md">
+                    <route.icon className="h-3.5 w-3.5 text-purple-400" /> {route.label}
+                  </div>
+                  <span className="rounded-full bg-purple-500/20 border border-purple-500/40 px-2.5 py-1 text-[10px] font-bold text-purple-300 backdrop-blur-md">
+                    {route.count}
+                  </span>
+                </div>
+
+                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-2xl font-black text-white group-hover:text-purple-300 transition-colors">{route.label}</p>
+                    <p className="text-sm font-medium text-purple-100/75">Abrir ruta dedicada</p>
+                  </div>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white shadow-[0_0_18px_rgba(168,85,247,0.25)] group-hover:bg-purple-500 group-hover:border-purple-400 group-hover:text-white transition-all duration-300">
+                    <ArrowRight className="h-5 w-5" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* MARCAS QUE CONFÍAN                         */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+            <Award className="h-3.5 w-3.5 text-purple-400" /> Marcas que confían
+          </span>
+          <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight">Empresas líderes ya usan Nexus</h2>
+          <p className="text-purple-200/65 text-base sm:text-lg">Más de 450 organizaciones han optimizado su operación con nosotros.</p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-6">
+          {BRANDS.map((brand) => (
+            <div key={brand.name} className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm transition-all hover:border-purple-500/40 hover:bg-white/[0.08] group">
+              <brand.icon className="h-12 w-12 text-purple-300 group-hover:text-purple-400 transition-colors" />
+              <span className="mt-3 text-xs font-bold text-purple-200/60 group-hover:text-white transition-colors">{brand.name}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* TESTIMONIOS                                */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+            Confianza Comprobada
+          </span>
+          <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight">Lo que dicen nuestros líderes</h2>
+          <p className="text-purple-200/65 text-base sm:text-lg">Empresas de tecnología y retail confían en nuestra infraestructura a diario.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {TESTIMONIALS.map((t, idx) => (
+            <div key={idx} className="rounded-[2.5rem] border border-purple-500/20 bg-white/[0.04] p-8 sm:p-10 backdrop-blur-xl relative flex flex-col justify-between group hover:border-purple-400/40 transition-all">
+              <div className="absolute top-8 right-8 flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-purple-400 text-purple-400" />
+                ))}
+              </div>
+              <p className="text-purple-100/85 text-lg sm:text-xl font-medium leading-relaxed mb-8 italic">
+                "{t.comment}"
+              </p>
+              <div className="flex items-center gap-4 pt-6 border-t border-white/10">
+                <img src={t.avatar} alt={t.name} className="h-14 w-14 rounded-full object-cover border-2 border-purple-500/40" />
+                <div>
+                  <h4 className="text-lg font-black text-white">{t.name}</h4>
+                  <p className="text-xs text-purple-300/70 font-medium">{t.role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* PLANES Y PRECIOS                           */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+            <Gift className="h-3.5 w-3.5 text-purple-400" /> Elige tu plan
+          </span>
+          <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight">Precios transparentes</h2>
+          <p className="text-purple-200/65 text-base sm:text-lg">Sin sorpresas, cancela cuando quieras.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {PRICING_PLANS.map((plan) => (
+            <div key={plan.name} className={`relative rounded-[2.5rem] border p-8 backdrop-blur-xl transition-all hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(168,85,247,0.15)] ${plan.popular ? 'border-purple-500/60 bg-gradient-to-b from-purple-500/10 to-transparent' : 'border-purple-500/20 bg-white/[0.04]'}`}>
+              {plan.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-500 text-[10px] font-black text-white px-4 py-1 rounded-full uppercase tracking-wider">
+                  Más popular
+                </div>
+              )}
+              <div className="mb-6">
+                <h3 className="text-2xl font-black text-white">{plan.name}</h3>
+                <p className="text-purple-200/60 text-sm mt-1">{plan.description}</p>
+              </div>
+              <div className="mb-6">
+                <span className="text-4xl font-black text-white">{plan.price}</span>
+                {plan.period && <span className="text-purple-200/50 text-sm ml-1">{plan.period}</span>}
+              </div>
+              <ul className="space-y-3 mb-8">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-3 text-sm text-purple-200/80">
+                    <CheckCircle2 className="h-4 w-4 text-purple-400 shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Button className={`w-full rounded-2xl font-bold ${plan.popular ? 'bg-purple-500 hover:bg-purple-400 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]' : 'border border-purple-400/30 bg-white/5 text-white hover:bg-white/10'}`}>
+                {plan.buttonText}
+              </Button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* BLOG                                      */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-12">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+              <FileText className="h-3.5 w-3.5 text-purple-400" /> Últimas novedades
+            </span>
+            <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight mt-2">Blog y actualizaciones</h2>
+          </div>
+          <Link to="/blog" className="text-purple-400 font-bold flex items-center gap-2 hover:gap-3 transition-all">
+            Ver todos los artículos <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {BLOG_POSTS.map((post) => (
+            <div key={post.title} className="group rounded-[2rem] border border-purple-500/20 bg-white/[0.04] overflow-hidden backdrop-blur-xl transition-all hover:-translate-y-2 hover:border-purple-500/40">
+              <div className="relative overflow-hidden h-56">
+                <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute top-4 left-4 bg-purple-500/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full">
+                  {post.category}
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="flex items-center gap-2 text-xs text-purple-300/60 mb-2">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {post.date}
+                </div>
+                <h3 className="text-xl font-black text-white group-hover:text-purple-300 transition-colors mb-2">{post.title}</h3>
+                <p className="text-purple-200/60 text-sm leading-relaxed">{post.excerpt}</p>
+                <div className="mt-4 flex items-center gap-2 text-purple-400 font-bold text-sm group-hover:gap-3 transition-all">
+                  Leer más <ArrowRight className="h-4 w-4" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* FAQ                                       */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1200px] px-4 py-16 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center max-w-xl mx-auto mb-12 space-y-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/25 bg-white/5 px-4 py-1.5 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+            <HelpCircle className="h-3.5 w-3.5 text-purple-400" /> Dudas Comunes
+          </span>
+          <h2 className="text-4xl font-black text-white tracking-tight">Preguntas Frecuentes</h2>
+        </div>
+
+        <div className="space-y-4">
+          {FAQS.map((faq, index) => {
+            const isOpen = openFaq === index
+            return (
+              <div
+                key={index}
+                className="rounded-2xl border border-purple-500/20 bg-white/[0.04] backdrop-blur-xl overflow-hidden transition-all duration-300"
+              >
+                <button
+                  onClick={() => setOpenFaq(isOpen ? null : index)}
+                  className="w-full flex items-center justify-between p-6 text-left font-bold text-white text-lg hover:text-purple-300 transition-colors"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown className={`h-5 w-5 text-purple-300 transition-transform duration-300 ${isOpen ? 'rotate-180 text-purple-400' : ''}`} />
+                </button>
+                {isOpen && (
+                  <div className="px-6 pb-6 text-purple-200/70 text-base leading-relaxed animate-in fade-in duration-300">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* SEGURIDAD Y LOGIN OBLIGATORIO              */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 pb-20 pt-8 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid gap-6 rounded-[2.5rem] border border-purple-500/20 bg-gradient-to-r from-purple-950/60 via-[#10001a] to-indigo-950/50 p-8 lg:grid-cols-[1.1fr_0.9fr] lg:p-12 shadow-2xl backdrop-blur-2xl">
+          <div className="space-y-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-purple-400/25 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-purple-200">
+              <BadgeCheck className="h-3.5 w-3.5 text-purple-400" /> Compra protegida
+            </span>
+            <h2 className="text-4xl font-black text-white sm:text-5xl tracking-tight">Login obligatorio para carrito y pago</h2>
+            <p className="max-w-2xl text-lg leading-relaxed text-purple-100/70">
+              La capa de negocio ya bloquea acciones de carrito sin token activo. Si no hay sesión, la acción se corta y la interfaz redirige a login con seguridad de nivel bancario.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              { icon: Users, title: 'Perfil autenticado' },
+              { icon: Package2, title: 'Inventario sincronizado' },
+              { icon: Volume2, title: 'Experiencia inmersiva' },
+              { icon: ShieldCheck, title: 'Pago seguro' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-6 transition-all hover:bg-white/10 hover:border-purple-500/40 hover:-translate-y-1">
+                <item.icon className="h-7 w-7 text-purple-400 mb-4" />
+                <p className="text-lg font-black text-white">{item.title}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* CTA FINAL                                  */}
+      {/* ========================================== */}
+      <section className="mx-auto max-w-[1800px] xl:px-12 px-4 pb-28 sm:px-6 lg:px-8 relative z-10">
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-purple-900/40 via-[#120520] to-fuchsia-900/40 p-10 sm:p-16 text-center border border-purple-500/30 backdrop-blur-2xl">
+          <div className="absolute -top-20 -right-20 h-80 w-80 bg-purple-500/20 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 h-80 w-80 bg-fuchsia-500/20 rounded-full blur-[120px] pointer-events-none" />
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">¿Listo para transformar tu negocio?</h2>
+            <p className="text-purple-200/70 text-base sm:text-lg mb-8">Únete a miles de empresas que ya optimizan su inventario con Nexus. Comienza hoy sin compromiso.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button className="rounded-2xl bg-purple-500 px-8 py-6 text-base font-black text-white shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:bg-purple-400 transition-all hover:scale-105">
+                Comenzar prueba gratis
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button className="rounded-2xl border border-purple-400/30 bg-white/5 px-8 py-6 text-base font-bold text-white hover:bg-white/10 transition-all">
+                <HelpCircle className="mr-2 h-5 w-5" />
+                Hablar con ventas
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================== */}
+      {/* BOTÓN VOLVER ARRIBA                        */}
+      {/* ========================================== */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-50 rounded-full bg-purple-500 p-3 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:bg-purple-400 transition-all hover:scale-110"
+        >
+          <ArrowRight className="h-6 w-6 rotate-[-90deg]" />
+        </button>
+      )}
 
     </div>
   )

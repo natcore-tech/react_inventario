@@ -1,57 +1,39 @@
-// src/presentation/store/producto.store.ts
 import { create } from 'zustand'
 import { productoUseCase } from '@/infrastructure/factories/producto.factory'
 import type { Producto } from '@/domain/entities/producto.entity'
 import type { CreateProductoDto, UpdateProductoDto } from '@/application/dtos/producto.dto'
 
-// ─── Tipos del store ──────────────────────────────────────────────────────────
 
 interface ProductoState {
-  /** Lista de productos cargados desde la API. */
   productos: Producto[]
-  /** true mientras GET /productos/ está en curso. */
   isLoading: boolean
-  /** true mientras POST, PATCH o DELETE están en curso. */
   isSaving: boolean
-  /** Mensaje de error del último intento fallido, null si no hay error. */
   error: string | null
 }
 
 interface ProductoActions {
-  /** GET /productos/ — carga la lista y la guarda en el estado. */
   loadProductos(): Promise<void>
-  /** POST /productos/ — crea un producto y recarga la lista. */
   createProducto(dto: CreateProductoDto): Promise<void>
-  /** PATCH /productos/:id/ — actualiza un producto y recarga la lista. */
   updateProducto(id: number, dto: UpdateProductoDto): Promise<void>
-  /** DELETE /productos/:id/ — elimina (soft delete) y recarga la lista. */
   deleteProducto(id: number): Promise<void>
-  /** Limpia el error actual. */
   clearError(): void
 }
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-
 export const useProductoStore = create<ProductoState & ProductoActions>((set, get) => ({
-  // ── Estado inicial ──────────────────────────────────────────────────────
   productos: [],
   isLoading: false,
   isSaving: false,
   error: null,
 
-  // ── Acciones ────────────────────────────────────────────────────────────
-
   async loadProductos() {
+    if (get().isLoading && get().productos.length > 0) return
     set({ isLoading: true, error: null })
     try {
-      const productos = await productoUseCase.getProductos()
-      set({ productos, isLoading: false })
-    } catch (err: unknown) {
-      const apiErr = err as { detail?: string; message?: string }
-      set({
-        isLoading: false,
-        error: apiErr.detail ?? apiErr.message ?? 'Error al cargar los productos',
-      })
+      const apiProductos = await productoUseCase.getProductos()
+      const list = Array.isArray(apiProductos) ? apiProductos : []
+      set({ productos: list, isLoading: false })
+    } catch (err: any) {
+      set({ isLoading: false, error: err?.message || 'Error loading productos' })
     }
   },
 
@@ -60,7 +42,6 @@ export const useProductoStore = create<ProductoState & ProductoActions>((set, ge
     try {
       await productoUseCase.createProducto(dto)
       set({ isSaving: false })
-      // Recargar la lista para reflejar el nuevo producto
       await get().loadProductos()
     } catch (err: unknown) {
       const apiErr = err as { detail?: string; message?: string }
@@ -77,7 +58,6 @@ export const useProductoStore = create<ProductoState & ProductoActions>((set, ge
     try {
       await productoUseCase.updateProducto(id, dto)
       set({ isSaving: false })
-      // Recargar la lista para reflejar los cambios
       await get().loadProductos()
     } catch (err: unknown) {
       const apiErr = err as { detail?: string; message?: string }
@@ -94,7 +74,6 @@ export const useProductoStore = create<ProductoState & ProductoActions>((set, ge
     try {
       await productoUseCase.deleteProducto(id)
       set({ isSaving: false })
-      // Recargar la lista para reflejar la eliminación
       await get().loadProductos()
     } catch (err: unknown) {
       const apiErr = err as { detail?: string; message?: string }
@@ -111,12 +90,8 @@ export const useProductoStore = create<ProductoState & ProductoActions>((set, ge
   },
 }))
 
-// ─── Selectores de conveniencia ───────────────────────────────────────────────
-
-/** Productos activos solamente. */
 export const selectProductosActivos = (state: ProductoState) =>
   state.productos.filter((p) => p.es_activo)
 
-/** Productos sin stock. */
 export const selectProductosSinStock = (state: ProductoState) =>
   state.productos.filter((p) => !p.en_stock)

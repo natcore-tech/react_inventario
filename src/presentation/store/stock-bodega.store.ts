@@ -1,4 +1,3 @@
-// src/presentation/store/stock-bodega.store.ts
 import { create } from 'zustand'
 import { StockBodegaUseCase } from '@/application/use-cases/stock-bodega.use-case'
 import { AxiosStockBodegaRepository } from '@/infrastructure/adapters/axios-stock-bodega.repository'
@@ -24,11 +23,14 @@ export const useStockBodegaStore = create<StockBodegaState>((set, get) => ({
   fetchStocks: async () => {
     set({ loading: true, error: null })
     try {
-      const stocks = await useCase.getStocksBodegas()
-      set({ stocks, loading: false })
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al cargar stocks'
-      set({ error: message, loading: false })
+      const apiStocks = await useCase.getStocksBodegas()
+      if (Array.isArray(apiStocks)) {
+        set({ stocks: apiStocks, loading: false })
+      } else {
+        set({ stocks: [], loading: false })
+      }
+    } catch (err: any) {
+      set({ loading: false, error: err?.message || 'Error loading stocks' })
     }
   },
 
